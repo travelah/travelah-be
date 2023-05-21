@@ -11,10 +11,11 @@ function generateAccessToken(user) {
 // But keep him logged in if he is using the app.
 // You can change this value depending on your app logic.
 // I would go for a maximum of 7 days, and make him login again after 7 days of inactivity.
-function generateRefreshToken(user) {
+function generateRefreshToken(user, jti) {
   return jwt.sign(
     {
       userId: user.id,
+      jti,
     },
     process.env.JWT_REFRESH_SECRET,
     {
@@ -23,9 +24,9 @@ function generateRefreshToken(user) {
   );
 }
 
-function generateTokens(user) {
+function generateTokens(user, jti) {
   const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
+  const refreshToken = generateRefreshToken(user, jti);
 
   return {
     accessToken,

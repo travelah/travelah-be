@@ -1,5 +1,5 @@
 const express = require('express');
-const { isAuthenticated } = require('../../middlewares');
+const { isAuthenticated } = require('../../middleware/middleware');
 const { findUserById } = require('./users.services');
 
 const router = express.Router();
