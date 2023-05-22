@@ -6,9 +6,7 @@ function notFound(req, res, next) {
   next(error);
 }
 
-/* eslint-disable no-unused-vars */
 function errorHandler(err, req, res, next) {
-  /* eslint-enable no-unused-vars */
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
   res.status(statusCode);
   res.json({
@@ -22,7 +20,7 @@ function isAuthenticated(req, res, next) {
 
   if (!authorization) {
     res.status(401);
-    throw new Error('🚫 Un-Authorized 🚫');
+    throw new Error('Un-Authorized, you are not authenticated');
   }
 
   try {
@@ -34,7 +32,7 @@ function isAuthenticated(req, res, next) {
     if (err.name === 'TokenExpiredError') {
       throw new Error(err.name);
     }
-    throw new Error('🚫 Un-Authorized 🚫');
+    throw new Error('Un-Authorized');
   }
 
   return next();
