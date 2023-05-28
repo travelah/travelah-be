@@ -34,7 +34,7 @@ model User {
   updatedAt     DateTime       @updatedAt
 }
 
-model RefreshToken {
+model RefreshToken {   // gausah pake, tokennya dilamain
   id          String   @id @unique @default(uuid())
   hashedToken String
   userId      Int
@@ -48,9 +48,9 @@ model Post {
   id          Int       @id @unique @default(autoincrement())
   userId      Int
   user        User      @relation("UserPosts",fields: [userId], references: [id], onDelete: Cascade)
-  description String
+  description String   //jangan string gini, karena nanti maks 255
   location    String
-  likeCount   Int       @default(0)
+  likeCount   Int       @default(0)  //likeCOuntnya jangan gini, gausah dibikin jadi atribut aja, jadi waktu dibutuhin aja baru ngitung like
   likes       Like[]    @relation("PostLikes")
   commentCount   Int       @default(0)
   comments     Comment[]    @relation("PostComments")
