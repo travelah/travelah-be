@@ -38,16 +38,16 @@ router.post('/register', async (req, res, next) => {
       throw new Error('Email already in use.');
     }
 
-    const user = await createUserByEmailAndPassword({ email, password });
+    const user = await createUserByEmailAndPassword({ email, password, fullName });
     const jti = uuidv4();
     const { accessToken, refreshToken } = generateTokens(user, jti);
     await addRefreshTokenToWhitelist({ jti, refreshToken, userId: user.id });
 
     res.status(201).json({
-      data: {
-        token: accessToken,
-        fullName,
-      },
+      // data: {
+      //   token: accessToken,
+      //   fullName,
+      // },
       message: 'Registration success',
       status: true,
     });
