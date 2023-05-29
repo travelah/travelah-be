@@ -14,7 +14,7 @@ router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
   try {
     const postId = parseInt(req.params.postId, 10);
     const post = await getSinglePost(postId);
-    res.json({
+    res.status(200).json({
       data: post,
       message: `Post with id ${postId} has been retrieved`,
       status: true,
@@ -27,7 +27,7 @@ router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
 router.get('/', isAuthenticated, async (req, res, next) => {
   try {
     const post = await getAllPost();
-    res.json({
+    res.status(200).json({
       data: post,
       message: 'All Post has been retrieved',
       status: true,
@@ -48,7 +48,7 @@ router.post('/', isAuthenticated, async (req, res, next) => {
     const { userId } = req;
     const post = await createPost(userId, description, location);
 
-    res.json({
+    res.status(201).json({
       data: post,
       message: 'New Post has been created',
       status: true,
@@ -67,7 +67,7 @@ router.delete('/:postId', isAuthenticated, async (req, res, next) => {
     }
 
     const postDel = await deletePost(postId);
-    res.json({
+    res.status(201).json({
       data: postDel,
       message: `Post with id ${postId} has been deleted`,
       status: true,
@@ -101,7 +101,7 @@ router.patch('/:postId', isAuthenticated, async (req, res, next) => {
 
     const postNew = await updatePost(userId, postId, data);
 
-    res.json({
+    res.status(200).json({
       data: postNew,
       message: `Post with id ${postId} has been deleted`,
       status: true,

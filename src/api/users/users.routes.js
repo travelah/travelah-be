@@ -9,7 +9,7 @@ router.get('/profile', isAuthenticated, async (req, res, next) => {
     const { userId } = req.payload;
     const user = await findUserById(userId);
     delete user.password;
-    res.json({
+    res.status(200).json({
       data: user,
       message: 'Success retrieve your profile',
       status: true,

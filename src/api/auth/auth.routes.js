@@ -43,7 +43,7 @@ router.post('/register', async (req, res, next) => {
     const { accessToken, refreshToken } = generateTokens(user, jti);
     await addRefreshTokenToWhitelist({ jti, refreshToken, userId: user.id });
 
-    res.json({
+    res.status(201).json({
       data: {
         token: accessToken,
         fullName,
@@ -52,6 +52,7 @@ router.post('/register', async (req, res, next) => {
       status: true,
     });
   } catch (err) {
+    console.log(err);
     next(err);
   }
 });
@@ -74,7 +75,7 @@ router.post('/login', async (req, res, next) => {
     const validPassword = await bcrypt.compare(password, existingUser.password);
     if (!validPassword) {
       res.status(403);
-      throw new Error('salah password bro');
+      throw new Error('Wrong password');
     }
 
     const jti = uuidv4();
@@ -85,7 +86,7 @@ router.post('/login', async (req, res, next) => {
       userId: existingUser.id,
     });
 
-    res.json({
+    res.status(200).json({
       data: {
         token: accessToken,
       },
@@ -93,6 +94,7 @@ router.post('/login', async (req, res, next) => {
       status: true,
     });
   } catch (err) {
+    console.log(err);
     next(err);
   }
 });
