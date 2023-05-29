@@ -1,6 +1,10 @@
 const express = require('express');
 const {
-  createPost, getAllPost, getSinglePost, deletePost, updatePost,
+  createPost,
+  getAllPost,
+  getSinglePost,
+  deletePost,
+  updatePost,
 } = require('./posts.services');
 const { isAuthenticated } = require('../../middleware/middleware');
 
@@ -10,7 +14,11 @@ router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
   try {
     const postId = parseInt(req.params.postId, 10);
     const post = await getSinglePost(postId);
-    res.json(post);
+    res.json({
+      data: post,
+      message: `Post with id ${postId} has been retrieved`,
+      status: true,
+    });
   } catch (err) {
     next(err);
   }
@@ -19,7 +27,11 @@ router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
 router.get('/', isAuthenticated, async (req, res, next) => {
   try {
     const post = await getAllPost();
-    res.json(post);
+    res.json({
+      data: post,
+      message: 'All Post has been retrieved',
+      status: true,
+    });
   } catch (err) {
     next(err);
   }
@@ -37,7 +49,9 @@ router.post('/', isAuthenticated, async (req, res, next) => {
     const post = await createPost(userId, description, location);
 
     res.json({
-      post,
+      data: post,
+      message: 'New Post has been created',
+      status: true,
     });
   } catch (err) {
     next(err);
@@ -53,7 +67,11 @@ router.delete('/:postId', isAuthenticated, async (req, res, next) => {
     }
 
     const postDel = await deletePost(postId);
-    res.json(postDel);
+    res.json({
+      data: postDel,
+      message: `Post with id ${postId} has been deleted`,
+      status: true,
+    });
   } catch (err) {
     next(err);
   }
@@ -84,7 +102,9 @@ router.patch('/:postId', isAuthenticated, async (req, res, next) => {
     const postNew = await updatePost(userId, postId, data);
 
     res.json({
-      postNew,
+      data: postNew,
+      message: `Post with id ${postId} has been deleted`,
+      status: true,
     });
   } catch (err) {
     next(err);

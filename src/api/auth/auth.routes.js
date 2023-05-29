@@ -20,10 +20,15 @@ const router = express.Router();
 
 router.post('/register', async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, fullName } = req.body;
     if (!email || !password) {
       res.status(400);
       throw new Error('You must provide an email and a password.');
+    }
+
+    if (!fullName) {
+      res.status(400);
+      throw new Error('You must provide your full name.');
     }
 
     const existingUser = await findUserByEmail(email);
@@ -39,8 +44,12 @@ router.post('/register', async (req, res, next) => {
     await addRefreshTokenToWhitelist({ jti, refreshToken, userId: user.id });
 
     res.json({
-      accessToken,
-      refreshToken,
+      data: {
+        token: accessToken,
+        fullName,
+      },
+      message: 'Registration success',
+      status: true,
     });
   } catch (err) {
     next(err);
@@ -77,8 +86,11 @@ router.post('/login', async (req, res, next) => {
     });
 
     res.json({
-      accessToken,
-      refreshToken,
+      data: {
+        token: accessToken,
+      },
+      message: 'Login succeed, enjoy your trip',
+      status: true,
     });
   } catch (err) {
     next(err);

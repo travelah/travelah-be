@@ -26,6 +26,7 @@ model User {
   id            Int            @id @unique @default(autoincrement())
   email         String         @unique
   password      String
+  fullName      String
   refreshTokens RefreshToken[] @relation("UserRefreshToken")
   like          Like[]         @relation("UserLikes")
   post          Post[]         @relation("UserPosts")
