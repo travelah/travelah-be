@@ -17,6 +17,13 @@ function createUserByEmailAndPassword(user) {
   });
 }
 
+function createUserOnlyByEmail(user) {
+  /* eslint no-param-reassign: "error" */
+  return db.user.create({
+    data: user,
+  });
+}
+
 function findUserById(id) {
   return db.user.findUnique({
     where: {
@@ -29,4 +36,5 @@ module.exports = {
   findUserByEmail,
   findUserById,
   createUserByEmailAndPassword,
+  createUserOnlyByEmail,
 };

@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 
 // Usually I keep the token between 5 minutes - 15 minutes
 function generateAccessToken(user) {
+  console.log(user, 'user ni bro');
   return jwt.sign({ userId: user.id }, process.env.JWT_ACCESS_SECRET, {
     expiresIn: '1y',
   });

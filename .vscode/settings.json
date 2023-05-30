@@ -6,6 +6,7 @@
     "source.fixAll.eslint": true,
     "source.fixAll.format": true
   },
+
   "prettier.singleQuote": true,
   "prettier.trailingComma": "all"
 }
