@@ -12,7 +12,7 @@ COPY . .
 # Build production image
 # FROM dependencies as builder
 # RUN npm run build
-EXPOSE 3000
+EXPOSE 8080
 
 # start command
 CMD ["npm", "run", "start:prod"]
