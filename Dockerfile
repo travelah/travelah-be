@@ -9,4 +9,6 @@ COPY . .
 # FROM dependencies as builder
 # RUN npm run build
 # EXPOSE 3000
+
+# start command
 CMD npm run start:prod
