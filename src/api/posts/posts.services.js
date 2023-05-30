@@ -7,9 +7,10 @@ function getSinglePost(postId) {
     },
   });
 }
-function getAllPost(post) {
+function getAllPost(page, take) {
   return db.post.findMany({
-    data: post,
+    skip: take * page,
+    take,
   });
 }
 function createPost(userId, desc, loc) {

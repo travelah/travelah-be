@@ -26,7 +26,14 @@ router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
 
 router.get('/', isAuthenticated, async (req, res, next) => {
   try {
-    const post = await getAllPost();
+    let { page, take } = req.body;
+    if (!page) {
+      page = 1;
+    }
+    if (!take) {
+      take = 5;
+    }
+    const post = await getAllPost(page, take);
     res.status(200).json({
       data: post,
       message: 'All Post has been retrieved',

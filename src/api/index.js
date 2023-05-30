@@ -5,6 +5,7 @@ const axios = require('axios');
 const auth = require('./auth/auth.routes');
 const users = require('./users/users.routes');
 const posts = require('./posts/posts.routes');
+const chats = require('./chats/chats.routes');
 
 const router = express.Router();
 
@@ -25,5 +26,6 @@ router.get('/home', (req, res) => {
 router.use('/auth', auth);
 router.use('/users', users);
 router.use('/posts', posts);
+router.use('/chats', chats);
 
 module.exports = router;
