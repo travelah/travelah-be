@@ -3,12 +3,12 @@
 FROM node:18.14.2 as dependencies
 WORKDIR /app
 COPY package.json .
-RUN npm i
+RUN npm install --production
 COPY . . 
 # Build production image
 # FROM dependencies as builder
 # RUN npm run build
-# EXPOSE 3000
+EXPOSE 8080
 
 # start command
-CMD npm run start:prod
+CMD ["npm", "run", "start:prod"]
