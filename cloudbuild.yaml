@@ -8,7 +8,7 @@ steps:
   # Check if schema exists in the database
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
-    args: ['prisma', 'db', 'pull', '--accept-data-loss']
+    args: ['prisma', 'migrate', 'resolve', '--applied', '--create-only']
   # Run Prisma migration deploy command
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
