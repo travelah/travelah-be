@@ -4,7 +4,11 @@ const morgan = require('morgan');
 
 const cors = require('cors');
 
-require('dotenv').config();
+const dotenv = require('dotenv');
+
+const env = process.env.NODE_ENV || 'development';
+
+dotenv.config({ path: `.env.${env}` });
 
 const middlewares = require('./middleware/middleware');
 const api = require('./api');
