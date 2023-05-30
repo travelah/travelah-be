@@ -114,7 +114,7 @@ router.post('/login', async (req, res, next) => {
     }
 
     const jti = uuidv4();
-
+    // 2 conditions
     if (existingUser || createdUser) {
       if (existingUser === null) {
         const { accessToken, refreshToken } = generateTokens(createdUser, jti);
