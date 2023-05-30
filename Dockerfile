@@ -1,4 +1,3 @@
-
 # Build dependencies
 FROM node:18.14.2 as dependencies
 WORKDIR /app
@@ -11,12 +10,12 @@ COPY package.json .
 COPY prisma ./prisma/
 COPY .env.development ./
 COPY .env.production ./
-COPY . . 
-RUN npm install 
+COPY . .
+RUN npm install
 RUN npx prisma generate
 
-
-
+# Set NODE_ENV environment variable
+ENV NODE_ENV production
 
 # Build production image
 # FROM dependencies as builder
