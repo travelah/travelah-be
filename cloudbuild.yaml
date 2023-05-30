@@ -5,6 +5,10 @@ steps:
   # push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA']
+  # Run Prisma migration reset command
+  - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
+    entrypoint: 'npx'
+    args: ['prisma', 'migrate', 'reset']
   # Run Prisma migration deploy command
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
