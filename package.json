@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/index.js",
-    "start:prod": "export NODE_ENV=production && npx prisma migrate && node src/index.js",
+    "start:prod": "export NODE_ENV=production && npx prisma migrate deploy && node src/index.js",
     "check": "standard --verbose | snazzy",
     "fix": "standard --fix"
   },
