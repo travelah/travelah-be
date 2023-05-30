@@ -8,7 +8,8 @@ COPY . .
 # Build production image
 # FROM dependencies as builder
 # RUN npm run build
-EXPOSE 8080
+ENV PORT=8080
+EXPOSE $PORT
 
 # start command
 CMD ["npm", "run", "start:prod"]
