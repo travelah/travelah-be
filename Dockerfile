@@ -15,6 +15,7 @@ RUN npm install
 RUN npx prisma generate
 
 # Set NODE_ENV environment variable
+ENV DATABASE_URL="mysql://root:travelah123@35.239.95.230/travelah-db?unix_socket=/cloudsql/travelah-388302:us-central1:travelah-sql"
 ENV NODE_ENV production
 
 # Build production image
