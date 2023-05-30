@@ -29,9 +29,13 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     let { page, take } = req.query;
     if (!page) {
       page = 1;
+    } else {
+      page = parseInt(page, 10);
     }
     if (!take) {
       take = 5;
+    } else {
+      take = parseInt(take, 10);
     }
     const post = await getAllPost(page, take);
     res.status(200).json({
