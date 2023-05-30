@@ -14,7 +14,7 @@ COPY .env.production ./
 COPY . . 
 RUN npm install 
 RUN npx prisma generate
-RUN npx prisma migrate deploy
+
 
 
 
@@ -25,3 +25,4 @@ EXPOSE 8080
 
 # start command
 CMD ["npm", "run", "start:prod"]
+RUN npx prisma migrate deploy
