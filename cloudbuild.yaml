@@ -5,22 +5,14 @@ steps:
   # push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA']
-  # Run Prisma migration reset command
+  # Check if schema exists in the database
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
-    args: ['prisma', 'migrate', 'reset', '--force']
+    args: ['prisma', 'db', 'pull', '--accept-data-loss']
   # Run Prisma migration deploy command
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
     args: ['prisma', 'migrate', 'deploy']
-  # Run Prisma migration save command (initial migration)
-  - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
-    entrypoint: 'npx'
-    args: ['prisma', 'migrate', 'dev', '--name', 'initial', '--create-only']
-  # Apply pending migrations
-  - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
-    entrypoint: 'npx'
-    args: ['prisma', 'migrate', 'dev']
   # Generate Prisma client
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
