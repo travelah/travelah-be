@@ -13,6 +13,18 @@ steps:
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
     args: ['prisma', 'migrate', 'deploy']
+    # Run Prisma migration deploy command
+  - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
+    entrypoint: 'npx'
+    args: ['prisma', 'migrate', 'save', '--name', 'initial']
+    # Run Prisma migration deploy command
+  - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
+    entrypoint: 'npx'
+    args: ['prisma', 'migrate', 'up', '--experimental']
+    # Run Prisma migration deploy command
+  - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
+    entrypoint: 'npx'
+    args: ['prisma', 'generate']
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
