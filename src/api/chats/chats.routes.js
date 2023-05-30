@@ -15,7 +15,7 @@ const router = express.Router();
 router.get('/group/:groupId', isAuthenticated, async (req, res, next) => {
   try {
     const groupId = parseInt(req.params.groupId, 10);
-    let { page, take } = req.body;
+    let { page, take } = req.query;
     if (!page) {
       page = 1;
     }
@@ -35,7 +35,7 @@ router.get('/group/:groupId', isAuthenticated, async (req, res, next) => {
 // get all group
 router.get('/', isAuthenticated, async (req, res, next) => {
   try {
-    let { page, take } = req.body;
+    let { page, take } = req.query;
     if (!page) {
       page = 1;
     }

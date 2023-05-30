@@ -26,7 +26,7 @@ router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
 
 router.get('/', isAuthenticated, async (req, res, next) => {
   try {
-    let { page, take } = req.body;
+    let { page, take } = req.query;
     if (!page) {
       page = 1;
     }
@@ -110,7 +110,7 @@ router.patch('/:postId', isAuthenticated, async (req, res, next) => {
 
     res.status(200).json({
       data: postNew,
-      message: `Post with id ${postId} has been deleted`,
+      message: `Post with id ${postId} has been updated`,
       status: true,
     });
   } catch (err) {
