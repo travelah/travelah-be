@@ -8,7 +8,7 @@ steps:
   # Run Prisma migration reset command
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
-    args: ['prisma', 'migrate', 'reset']
+    args: ['prisma', 'migrate', 'reset', '--force']
   # Run Prisma migration deploy command
   - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
     entrypoint: 'npx'
