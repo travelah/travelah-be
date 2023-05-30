@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/index.js",
-    "start:prod": "NODE_ENV=production && npx prisma migrate && node src/index.js",
+    "start:prod": "cross-env NODE_ENV=production && npx prisma migrate && node src/index.js",
     "check": "standard --verbose | snazzy",
     "fix": "standard --fix"
   },
@@ -40,6 +40,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "^8.41.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
