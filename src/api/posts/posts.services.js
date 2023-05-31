@@ -16,7 +16,14 @@ function getAllPost(page, take) {
 
 function getMostLikedPost() {
   return db.post.findMany({
-    include: {
+    // include: {
+    //   _count: {
+    //     select: {
+    //       likes: true,
+    //     },
+    //   },
+    // },
+    select: {
       _count: {
         select: {
           likes: true,
