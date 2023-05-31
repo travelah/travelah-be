@@ -8,7 +8,7 @@ COPY package.json .
 
 # generated prisma files
 COPY prisma ./prisma/
-COPY .env.development ./
+# COPY .env.development ./
 COPY .env.production ./
 COPY . .
 RUN npm install
