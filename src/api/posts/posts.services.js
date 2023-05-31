@@ -21,7 +21,6 @@ function getMostLikedPost() {
         select: {
           likes: true,
         },
-        alias: 'likeCount',
       },
     },
     orderBy: {
