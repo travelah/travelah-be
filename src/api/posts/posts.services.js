@@ -58,7 +58,7 @@ function likePost(userId, postId, likeType) {
       user: {
         connect: { id: userId },
       },
-      postId,
+      post: postId,
       likeType,
     },
   });
@@ -70,7 +70,7 @@ function commentPost(userId, postId, description) {
       user: {
         connect: { id: userId },
       },
-      postId,
+      post: postId,
       description,
     },
   });
