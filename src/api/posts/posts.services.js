@@ -14,29 +14,8 @@ function getAllPost(page, take) {
   });
 }
 
-function getMostLikedPost() {
-  return db.post.findMany({
-    include: {
-      _count: {
-        select: {
-          likes: true,
-        },
-        where: {
-          likes: {
-            some: {
-              likeType: 'LIKE',
-            },
-          },
-        },
-      },
-    },
-    where: {
-      likes: {
-        some: {
-          likeType: 'LIKE',
-        },
-      },
-    },
+async function getMostLikedPost() {
+  const posts = await db.post.findMany({
     orderBy: {
       likes: {
         _count: 'desc',
@@ -44,6 +23,33 @@ function getMostLikedPost() {
     },
     take: 2,
   });
+
+  const postIds = posts.map((post) => post.id);
+
+  const likeCounts = await db.like.groupBy({
+    by: ['postId'],
+    where: {
+      postId: {
+        in: postIds,
+      },
+      likeType: 'LIKE',
+    },
+    _count: true,
+  });
+
+  const likeCountsMap = likeCounts.reduce((result, item) => {
+    const map = { ...result };
+    // eslint-disable-next-line no-underscore-dangle
+    map[item.postId] = item._count;
+    return map;
+  }, {});
+
+  const postsWithLikeCount = posts.map((post) => ({
+    ...post,
+    likeCount: likeCountsMap[post.id] || 0,
+  }));
+
+  return postsWithLikeCount;
 }
 
 function createPost(userId, desc, loc) {
