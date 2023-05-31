@@ -7,11 +7,56 @@ function getSinglePost(postId) {
     },
   });
 }
-function getAllPost(page, take) {
-  return db.post.findMany({
+async function getAllPost(page, take) {
+  const posts = await db.post.findMany({
     skip: take * page,
     take,
   });
+  const postIds = posts.map((post) => post.id);
+
+  const likeCounts = await db.like.groupBy({
+    by: ['postId'],
+    where: {
+      postId: {
+        in: postIds,
+      },
+      likeType: 'LIKE',
+    },
+    _count: true,
+  });
+
+  const dontLikeCounts = await db.like.groupBy({
+    by: ['postId'],
+    where: {
+      postId: {
+        in: postIds,
+      },
+      likeType: 'DONTLIKE',
+    },
+    _count: true,
+  });
+
+  const likeCountsMap = likeCounts.reduce((result, item) => {
+    const map = { ...result };
+    // eslint-disable-next-line no-underscore-dangle
+    map[item.postId] = item._count;
+    return map;
+  }, {});
+
+  const dontLikeCountsMap = dontLikeCounts.reduce((result, item) => {
+    const map = { ...result };
+    // eslint-disable-next-line no-underscore-dangle
+    map[item.postId] = item._count;
+    return map;
+  }, {});
+
+  const postsWithLikeAndDontLikeCount = posts.map((post) => ({
+    ...post,
+    likeCount: likeCountsMap[post.id] || 0,
+    dontLikeCount: dontLikeCountsMap[post.id] || 0,
+  }));
+
+  return postsWithLikeAndDontLikeCount;
 }
 
 async function getMostLikedPost() {
