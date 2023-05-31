@@ -77,7 +77,7 @@ router.post('/comment/:postId/', isAuthenticated, async (req, res, next) => {
     const postId = parseInt(req.params.postId, 10);
     const { userId } = req;
     const { description } = req.body;
-    const postCommented = await likePost(userId, postId, description);
+    const postCommented = await commentPost(userId, postId, description);
 
     res.status(200).json({
       data: postCommented,
