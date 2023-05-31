@@ -59,11 +59,6 @@ router.post(
       const postId = parseInt(req.params.postId, 10);
       const { likeType } = req.params;
       const { userId } = req;
-      const post = await getSinglePost(postId);
-      if (!post || post.userId !== userId) {
-        throw new Error('You are not authorized to like this post.');
-      }
-
       const postLiked = await likePost(userId, postId, likeType);
 
       res.status(200).json({
@@ -82,11 +77,6 @@ router.post('/comment/:postId/', isAuthenticated, async (req, res, next) => {
     const postId = parseInt(req.params.postId, 10);
     const { userId } = req;
     const { description } = req.body;
-    const post = await getSinglePost(postId);
-    if (!post || post.userId !== userId) {
-      throw new Error('You are not authorized to comment on this post.');
-    }
-
     const postCommented = await likePost(userId, postId, description);
 
     res.status(200).json({
