@@ -5,6 +5,7 @@ const {
   getSinglePost,
   deletePost,
   updatePost,
+  getMostLikedPost,
 } = require('./posts.services');
 const { isAuthenticated } = require('../../middleware/middleware');
 
@@ -41,6 +42,19 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     res.status(200).json({
       data: post,
       message: 'All Post has been retrieved',
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/most-liked', isAuthenticated, async (req, res, next) => {
+  try {
+    const post = getMostLikedPost;
+    res.status(200).json({
+      data: post,
+      message: '2 most liked post has been retrieved',
       status: true,
     });
   } catch (err) {

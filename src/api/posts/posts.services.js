@@ -13,6 +13,18 @@ function getAllPost(page, take) {
     take,
   });
 }
+
+function getMostLikedPost() {
+  return db.post.findMany({
+    orderBy: {
+      likes: {
+        desc: true,
+      },
+    },
+    take: 2,
+  });
+}
+
 function createPost(userId, desc, loc) {
   return db.post.create({
     data: {
@@ -45,4 +57,5 @@ module.exports = {
   getSinglePost,
   deletePost,
   updatePost,
+  getMostLikedPost,
 };
