@@ -51,7 +51,7 @@ router.get('/', isAuthenticated, async (req, res, next) => {
 
 router.get('/most-liked', isAuthenticated, async (req, res, next) => {
   try {
-    const post = getMostLikedPost;
+    const post = await getMostLikedPost();
     res.status(200).json({
       data: post,
       message: '2 most liked post has been retrieved',
