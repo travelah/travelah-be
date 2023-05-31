@@ -31,8 +31,8 @@ function getMostLikedPost() {
       },
     },
     orderBy: {
-      _count: {
-        likes: 'desc',
+      likes: {
+        _count: 'desc',
       },
     },
     take: 2,
