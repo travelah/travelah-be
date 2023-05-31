@@ -23,6 +23,15 @@ function getMostLikedPost() {
         },
       },
     },
+    where: {
+      likes: {
+        every: {
+          likeType: {
+            equals: 'LIKE',
+          },
+        },
+      },
+    },
     orderBy: {
       likes: {
         _count: 'desc',
