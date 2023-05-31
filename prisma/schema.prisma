@@ -28,6 +28,8 @@ model User {
   password      String?
   fullName      String
   isSignedByGoogle Boolean     @default(false)
+  profilePicPath String
+  profilePicName String
   refreshTokens RefreshToken[] @relation("UserRefreshToken")
   like          Like[]         @relation("UserLikes")
   post          Post[]         @relation("UserPosts")
