@@ -44,7 +44,7 @@ function createGroupChat() {
     },
   });
 }
-function createChatbyGroup(question, response, type, groupId) {
+function createChatbyGroup(question, response, type, groupId, userId) {
   return db.chat.create({
     data: {
       question,
@@ -55,10 +55,45 @@ function createChatbyGroup(question, response, type, groupId) {
           id: groupId,
         },
       },
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
       bookmarked: false,
     },
   });
 }
+function checkIfUserAlreadyBookmarkedAChat(chatId) {
+  return db.chat.findFirst({
+    where: {
+      id: chatId,
+      bookmarked: true,
+    },
+  });
+}
+function bookmarkChat(chatId) {
+  return db.chat.update({
+    where: {
+      id: chatId,
+    },
+    data: {
+      bookmarked: true,
+    },
+  });
+}
+
+function unbookmarkChat(chatId) {
+  return db.chat.update({
+    where: {
+      id: chatId,
+    },
+    data: {
+      bookmarked: false,
+    },
+  });
+}
+
 function deleteChat(chatId) {
   return db.chat.delete({
     where: {
@@ -89,4 +124,7 @@ module.exports = {
   createChatbyGroup,
   deleteChat,
   deleteGroupChat,
+  bookmarkChat,
+  unbookmarkChat,
+  checkIfUserAlreadyBookmarkedAChat,
 };

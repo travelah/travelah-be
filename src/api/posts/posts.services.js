@@ -132,6 +132,15 @@ function likePost(userId, postId, likeType) {
   });
 }
 
+function unlikePost(userId, postId) {
+  return db.like.deleteMany({
+    where: {
+      userId,
+      postId,
+    },
+  });
+}
+
 function checkIfUserAlreadyLikeAPost(userId, postId) {
   return db.like.findFirst({
     where: {
@@ -174,14 +183,52 @@ function deletePost(postId) {
     },
   });
 }
-function updatePost(iduser, postId, data) {
-  return db.post.update({
-    where: {
-      id: postId,
-    },
-    data,
-  });
+async function updatePost(iduser, postId, data) {
+  if (data.description && data.location) {
+    const location = await getLocationName(
+      data.location.latitude,
+      data.location.longitude,
+    );
+    return db.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        description: data.description,
+        location,
+      },
+    });
+  }
+  if (!data.description && data.location.latitude && data.location.longitude) {
+    console.log('masuk sini kah 2');
+    const location = await getLocationName(
+      data.location.latitude,
+      data.location.longitude,
+    );
+    return db.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        location,
+      },
+    });
+  }
+  if (data.description) {
+    console.log('masuk sini kah 3');
+    return db.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        description: data.description,
+      },
+    });
+  }
+
+  return null;
 }
+
 module.exports = {
   createPost,
   getAllPost,
@@ -192,4 +239,5 @@ module.exports = {
   likePost,
   commentPost,
   checkIfUserAlreadyLikeAPost,
+  unlikePost,
 };

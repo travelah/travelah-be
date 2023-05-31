@@ -7,6 +7,9 @@ const {
   createChatbyGroup,
   deleteChat,
   deleteGroupChat,
+  bookmarkChat,
+  unbookmarkChat,
+  checkIfUserAlreadyBookmarkedAChat,
 } = require('./chats.services');
 const { isAuthenticated } = require('../../middleware/middleware');
 
@@ -80,12 +83,19 @@ router.post('/group', isAuthenticated, async (req, res, next) => {
 router.post('/:groupId', isAuthenticated, async (req, res, next) => {
   try {
     const { question, response, chatType } = req.body;
+    const { userId } = req;
     const groupId = parseInt(req.params.groupId, 10);
     if (!question || !response || !chatType || !groupId) {
       res.status(400);
       throw new Error('You must provide a complete attribute');
     }
-    const chat = await createChatbyGroup(question, response, chatType, groupId);
+    const chat = await createChatbyGroup(
+      question,
+      response,
+      chatType,
+      groupId,
+      userId,
+    );
 
     res.status(201).json({
       data: chat,
@@ -96,6 +106,32 @@ router.post('/:groupId', isAuthenticated, async (req, res, next) => {
     next(err);
   }
 });
+// bookmark single chat
+router.patch('/:chatId', isAuthenticated, async (req, res, next) => {
+  try {
+    const chatId = parseInt(req.params.chatId, 10);
+    const isBookmarked = await checkIfUserAlreadyBookmarkedAChat(chatId);
+    if (isBookmarked === null) {
+      console.log(chatId);
+      const bookmarkedChat = await bookmarkChat(chatId);
+      res.status(201).json({
+        data: bookmarkedChat,
+        message: `Chat with id ${chatId} has been bookmarked`,
+        status: true,
+      });
+    } else {
+      const unbookmarkedChat = await unbookmarkChat(chatId);
+      res.status(201).json({
+        data: unbookmarkedChat,
+        message: `Chat with id ${chatId} has been unbookmarked`,
+        status: true,
+      });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
 // delete single chat
 router.delete('/:chatId', isAuthenticated, async (req, res, next) => {
   try {

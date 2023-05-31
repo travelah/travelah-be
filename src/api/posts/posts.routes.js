@@ -7,6 +7,7 @@ const {
   updatePost,
   getMostLikedPost,
   likePost,
+  unlikePost,
   commentPost,
   checkIfUserAlreadyLikeAPost,
 } = require('./posts.services');
@@ -67,6 +68,33 @@ router.post('/like/:postId', isAuthenticated, async (req, res, next) => {
       });
     } else {
       throw new Error('You already liked or dont liked this post');
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/like/:postId', isAuthenticated, async (req, res, next) => {
+  try {
+    const postId = parseInt(req.params.postId, 10);
+
+    const post = await getSinglePost(postId);
+    if (!post) {
+      throw new Error(`there is no post with id of ${postId}`);
+    }
+    const { userId } = req;
+    console.log(postId, userId);
+    const userLikeCheck = await checkIfUserAlreadyLikeAPost(userId, postId);
+    console.log(userLikeCheck);
+    if (userLikeCheck !== null) {
+      const postLiked = await unlikePost(userId, postId);
+      res.status(200).json({
+        data: postLiked,
+        message: `Post with id ${postId} has been unliked or un-dont like`,
+        status: true,
+      });
+    } else {
+      throw new Error('You never like or dont like this post');
     }
   } catch (err) {
     next(err);
@@ -151,27 +179,42 @@ router.delete('/:postId', isAuthenticated, async (req, res, next) => {
 });
 router.patch('/:postId', isAuthenticated, async (req, res, next) => {
   try {
+    let data;
     const postId = parseInt(req.params.postId, 10);
     const { userId } = req;
     const post = await getSinglePost(postId);
     if (!post || post.userId !== userId) {
       throw new Error('You are not authorized to update this post.');
     }
-    const { description, location } = req.body;
-    // if (!description || !location) {
-    //   res.status(400);
-    //   throw new Error('You must provide an description and location.');
-    // }
-    const data = {};
-
-    if (description) {
-      data.description = description;
+    if (!req.body.location) {
+      const { description } = req.body;
+      data = {
+        description,
+      };
+    } else if (!req.body.description) {
+      const {
+        location: { latitude, longitude },
+      } = req.body;
+      data = {
+        location: {
+          latitude,
+          longitude,
+        },
+      };
+    } else if (req.body.location && req.body.description) {
+      const {
+        description,
+        location: { latitude, longitude },
+      } = req.body;
+      data = {
+        description,
+        location: {
+          latitude,
+          longitude,
+        },
+      };
     }
-
-    if (location) {
-      data.location = location;
-    }
-
+    console.log(data);
     const postNew = await updatePost(userId, postId, data);
 
     res.status(200).json({
