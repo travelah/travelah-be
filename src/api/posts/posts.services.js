@@ -1,4 +1,6 @@
+const axios = require('axios');
 const { db } = require('../../utils/db');
+const { mapsApiKey } = require('../../../keys/mapsApiKey.json');
 // function
 function getSinglePost(postId) {
   return db.post.findUnique({
@@ -57,6 +59,25 @@ async function getAllPost(page, take) {
   }));
 
   return postsWithLikeAndDontLikeCount;
+}
+
+async function getLocationName(latitude, longitude) {
+  try {
+    const apiKey = mapsApiKey;
+    console.log(latitude, longitude);
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&sensor=true&key=${apiKey}`;
+    console.log(url);
+    const response = await axios.get(url);
+
+    if (response.data.results.length > 0) {
+      const locationName = response.data.results[0].formatted_address;
+      return locationName;
+    }
+    throw new Error('No location found for the given coordinates.');
+  } catch (error) {
+    console.error('Error retrieving location:', error);
+    throw error;
+  }
 }
 
 async function getMostLikedPost() {
@@ -125,14 +146,15 @@ function commentPost(userId, postId, description) {
   });
 }
 
-function createPost(userId, desc, loc) {
+async function createPost(userId, desc, latitude, longitude) {
+  const location = await getLocationName(latitude, longitude);
   return db.post.create({
     data: {
       user: {
         connect: { id: userId },
       },
       description: desc,
-      location: loc,
+      location,
     },
   });
 }

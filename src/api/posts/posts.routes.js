@@ -100,14 +100,21 @@ router.get('/most-liked', isAuthenticated, async (req, res, next) => {
 
 router.post('/', isAuthenticated, async (req, res, next) => {
   try {
-    const { description, location } = req.body;
-    if (!description || !location) {
+    const {
+      description,
+      location: { latitude, longitude },
+    } = req.body;
+    if (!description) {
       res.status(400);
-      throw new Error('You must provide an description and location.');
+      throw new Error('You must provide an description');
+    }
+    if (!latitude && !longitude) {
+      res.status(400);
+      throw new Error('You must provide an latitude and longitude');
     }
 
     const { userId } = req;
-    const post = await createPost(userId, description, location);
+    const post = await createPost(userId, description, latitude, longitude);
 
     res.status(201).json({
       data: post,

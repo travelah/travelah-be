@@ -21,7 +21,7 @@ const { hashToken } = require('../../utils/hashToken');
 
 const router = express.Router();
 
-const serviceAccount = require('./ServiceAccountKey.json');
+const serviceAccount = require('../../../keys/ServiceAccountKey.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
