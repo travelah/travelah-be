@@ -22,6 +22,7 @@ function getMostLikedPost() {
           likes: true,
         },
       },
+      alias: 'likeCount',
     },
     orderBy: {
       likes: {
