@@ -25,16 +25,14 @@ function getMostLikedPost() {
     },
     where: {
       likes: {
-        every: {
-          likeType: {
-            equals: 'LIKE',
-          },
+        some: {
+          likeType: 'LIKE',
         },
       },
     },
     orderBy: {
-      likes: {
-        _count: 'desc',
+      _count: {
+        likes: 'desc',
       },
     },
     take: 2,
