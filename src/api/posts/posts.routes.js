@@ -51,26 +51,22 @@ router.get('/', isAuthenticated, async (req, res, next) => {
   }
 });
 
-router.post(
-  '/like/:postId/:likeType',
-  isAuthenticated,
-  async (req, res, next) => {
-    try {
-      const postId = parseInt(req.params.postId, 10);
-      const { likeType } = req.params;
-      const { userId } = req;
-      const postLiked = await likePost(userId, postId, likeType);
+router.post('/like/:postId', isAuthenticated, async (req, res, next) => {
+  try {
+    const { likeType } = req.query;
+    const postId = parseInt(req.params.postId, 10);
+    const { userId } = req;
+    const postLiked = await likePost(userId, postId, likeType);
 
-      res.status(200).json({
-        data: postLiked,
-        message: `Post with id ${postId} has been liked or Disliked`,
-        status: true,
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
-);
+    res.status(200).json({
+      data: postLiked,
+      message: `Post with id ${postId} has been liked or Disliked`,
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.post('/comment/:postId/', isAuthenticated, async (req, res, next) => {
   try {
