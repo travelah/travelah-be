@@ -52,6 +52,30 @@ async function getMostLikedPost() {
   return postsWithLikeCount;
 }
 
+function likePost(userId, postId, likeType) {
+  return db.like.create({
+    data: {
+      user: {
+        connect: { id: userId },
+      },
+      postId,
+      likeType,
+    },
+  });
+}
+
+function commentPost(userId, postId, description) {
+  return db.comment.create({
+    data: {
+      user: {
+        connect: { id: userId },
+      },
+      postId,
+      description,
+    },
+  });
+}
+
 function createPost(userId, desc, loc) {
   return db.post.create({
     data: {
@@ -85,4 +109,6 @@ module.exports = {
   deletePost,
   updatePost,
   getMostLikedPost,
+  likePost,
+  commentPost,
 };

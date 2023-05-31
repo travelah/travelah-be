@@ -6,6 +6,8 @@ const {
   deletePost,
   updatePost,
   getMostLikedPost,
+  likePost,
+  commentPost,
 } = require('./posts.services');
 const { isAuthenticated } = require('../../middleware/middleware');
 
@@ -42,6 +44,54 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     res.status(200).json({
       data: post,
       message: 'All Post has been retrieved',
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post(
+  '/like/:postId/:likeType',
+  isAuthenticated,
+  async (req, res, next) => {
+    try {
+      const postId = parseInt(req.params.postId, 10);
+      const { likeType } = req.params;
+      const { userId } = req;
+      const post = await getSinglePost(postId);
+      if (!post || post.userId !== userId) {
+        throw new Error('You are not authorized to like this post.');
+      }
+
+      const postLiked = await likePost(userId, postId, likeType);
+
+      res.status(200).json({
+        data: postLiked,
+        message: `Post with id ${postId} has been liked or Disliked`,
+        status: true,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+router.post('/comment/:postId/', isAuthenticated, async (req, res, next) => {
+  try {
+    const postId = parseInt(req.params.postId, 10);
+    const { userId } = req;
+    const { description } = req.body;
+    const post = await getSinglePost(postId);
+    if (!post || post.userId !== userId) {
+      throw new Error('You are not authorized to comment on this post.');
+    }
+
+    const postCommented = await likePost(userId, postId, description);
+
+    res.status(200).json({
+      data: postCommented,
+      message: `Post with id ${postId} has been commented`,
       status: true,
     });
   } catch (err) {
