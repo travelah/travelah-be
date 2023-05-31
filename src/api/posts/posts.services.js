@@ -132,6 +132,15 @@ function likePost(userId, postId, likeType) {
   });
 }
 
+function checkIfUserAlreadyLikeAPost(userId, postId) {
+  return db.like.findFirst({
+    where: {
+      postId,
+      userId,
+    },
+  });
+}
+
 function commentPost(userId, postId, description) {
   return db.comment.create({
     data: {
@@ -182,4 +191,5 @@ module.exports = {
   getMostLikedPost,
   likePost,
   commentPost,
+  checkIfUserAlreadyLikeAPost,
 };

@@ -8,6 +8,7 @@ const {
   getMostLikedPost,
   likePost,
   commentPost,
+  checkIfUserAlreadyLikeAPost,
 } = require('./posts.services');
 const { isAuthenticated } = require('../../middleware/middleware');
 
@@ -56,13 +57,17 @@ router.post('/like/:postId', isAuthenticated, async (req, res, next) => {
     const { likeType } = req.query;
     const postId = parseInt(req.params.postId, 10);
     const { userId } = req;
-    const postLiked = await likePost(userId, postId, likeType);
-
-    res.status(200).json({
-      data: postLiked,
-      message: `Post with id ${postId} has been liked or Disliked`,
-      status: true,
-    });
+    const userLikeCheck = await checkIfUserAlreadyLikeAPost(userId, postId);
+    if (userLikeCheck === null) {
+      const postLiked = await likePost(userId, postId, likeType);
+      res.status(200).json({
+        data: postLiked,
+        message: `Post with id ${postId} has been liked or Disliked`,
+        status: true,
+      });
+    } else {
+      throw new Error('You already liked or dont liked this post');
+    }
   } catch (err) {
     next(err);
   }
