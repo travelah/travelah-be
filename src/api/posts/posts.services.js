@@ -9,7 +9,7 @@ function getSinglePost(postId) {
     },
   });
 }
-async function getAllPost(page, take) {
+async function getAllPost(page, take, userId) {
   const posts = await db.post.findMany({
     skip: take * page,
     take,
@@ -52,11 +52,36 @@ async function getAllPost(page, take) {
     return map;
   }, {});
 
-  const postsWithLikeAndDontLikeCount = posts.map((post) => ({
-    ...post,
-    likeCount: likeCountsMap[post.id] || 0,
-    dontLikeCount: dontLikeCountsMap[post.id] || 0,
-  }));
+  const postsWithLikeAndDontLikeCount = await Promise.all(
+    posts.map(async (post) => {
+      const isUserLike = await db.like.findFirst({
+        where: {
+          postId: post.id,
+          userId,
+          likeType: 'LIKE',
+        },
+      });
+
+      const isUserDontLike = await db.like.findFirst({
+        where: {
+          postId: post.id,
+          userId,
+          likeType: 'DONTLIKE',
+        },
+      });
+
+      const likeCount = likeCountsMap[post.id] || 0;
+      const dontLikeCount = dontLikeCountsMap[post.id] || 0;
+
+      return {
+        ...post,
+        likeCount,
+        dontLikeCount,
+        isUserLike: Boolean(isUserLike),
+        isUserDontLike: Boolean(isUserDontLike),
+      };
+    }),
+  );
 
   return postsWithLikeAndDontLikeCount;
 }

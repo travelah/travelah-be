@@ -36,9 +36,15 @@ function getAllGroup(page, take) {
     },
   });
 }
-function createGroupChat() {
+function createGroupChat(userId) {
   return db.groupChat.create({
-    data: {},
+    data: {
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
     select: {
       id: true,
     },

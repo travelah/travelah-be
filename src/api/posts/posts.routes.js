@@ -42,7 +42,8 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     } else {
       take = parseInt(take, 10);
     }
-    const post = await getAllPost(page, take);
+    const { userId } = req;
+    const post = await getAllPost(page, take, userId);
     res.status(200).json({
       data: post,
       message: 'All Post has been retrieved',

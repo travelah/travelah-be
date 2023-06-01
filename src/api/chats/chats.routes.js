@@ -68,7 +68,8 @@ router.get('/', isAuthenticated, async (req, res, next) => {
 // create groupchat
 router.post('/group', isAuthenticated, async (req, res, next) => {
   try {
-    const group = await createGroupChat();
+    const { userId } = req;
+    const group = await createGroupChat(userId);
 
     res.status(201).json({
       data: group,
