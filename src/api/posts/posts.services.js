@@ -2,13 +2,78 @@ const axios = require('axios');
 const { db } = require('../../utils/db');
 const { mapsApiKey } = require('../../../keys/mapsApiKey.json');
 // function
-function getSinglePost(postId) {
-  return db.post.findUnique({
+async function getSinglePost(postId, userId) {
+  const post = await db.post.findUnique({
     where: {
       id: postId,
     },
   });
+
+  const likeCounts = await db.like.groupBy({
+    by: ['postId'],
+    where: {
+      postId,
+      likeType: 'LIKE',
+    },
+    _count: true,
+  });
+
+  const dontLikeCounts = await db.like.groupBy({
+    by: ['postId'],
+    where: {
+      postId,
+      likeType: 'DONTLIKE',
+    },
+    _count: true,
+  });
+
+  const likeCountsMap = likeCounts.reduce((result, item) => {
+    const map = { ...result };
+    // eslint-disable-next-line no-underscore-dangle
+    map[item.postId] = item._count;
+    return map;
+  }, {});
+
+  const dontLikeCountsMap = dontLikeCounts.reduce((result, item) => {
+    const map = { ...result };
+    // eslint-disable-next-line no-underscore-dangle
+    map[item.postId] = item._count;
+    return map;
+  }, {});
+
+  const isUserLike = await db.like.findFirst({
+    where: {
+      postId: post.id,
+      userId,
+      likeType: 'LIKE',
+    },
+  });
+
+  const isUserDontLike = await db.like.findFirst({
+    where: {
+      postId: post.id,
+      userId,
+      likeType: 'DONTLIKE',
+    },
+  });
+  const commentCount = await db.comment.count({
+    where: {
+      postId: post.id,
+    },
+  });
+
+  const likeCount = likeCountsMap[post.id] || 0;
+  const dontLikeCount = dontLikeCountsMap[post.id] || 0;
+  return {
+    ...post,
+    likeCount,
+    dontLikeCount,
+    commentCount,
+    isUserLike: Boolean(isUserLike),
+    isUserDontLike: Boolean(isUserDontLike),
+  };
 }
+
 async function getAllPost(page, take, userId) {
   const posts = await db.post.findMany({
     skip: take * page,
@@ -69,6 +134,11 @@ async function getAllPost(page, take, userId) {
           likeType: 'DONTLIKE',
         },
       });
+      const commentCount = await db.comment.count({
+        where: {
+          postId: post.id,
+        },
+      });
 
       const likeCount = likeCountsMap[post.id] || 0;
       const dontLikeCount = dontLikeCountsMap[post.id] || 0;
@@ -77,6 +147,7 @@ async function getAllPost(page, take, userId) {
         ...post,
         likeCount,
         dontLikeCount,
+        commentCount,
         isUserLike: Boolean(isUserLike),
         isUserDontLike: Boolean(isUserDontLike),
       };

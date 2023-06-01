@@ -17,8 +17,9 @@ const router = express.Router();
 
 router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
   try {
+    const { userId } = req;
     const postId = parseInt(req.params.postId, 10);
-    const post = await getSinglePost(postId);
+    const post = await getSinglePost(postId, userId);
     res.status(200).json({
       data: post,
       message: `Post with id ${postId} has been retrieved`,
