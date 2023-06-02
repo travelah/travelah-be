@@ -20,6 +20,21 @@ async function getSinglePost(postId, userId) {
     where: {
       id: postId,
     },
+    include: {
+      comments: {
+        orderBy: {
+          createdAt: 'asc',
+        },
+        include: {
+          user: {
+            select: {
+              fullName: true,
+              profilePicPath: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   const likeCounts = await db.like.groupBy({
