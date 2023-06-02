@@ -74,6 +74,7 @@ async function getSinglePost(postId, userId) {
       postId: post.id,
     },
   });
+  console.log(userId, 'userId nih brah');
   const user = await findUserById(userId);
   const profilePicOfUser = `${user.profilePicPath}/${user.profilePicName}`;
   const userFullName = user.fullName;

@@ -213,7 +213,7 @@ router.patch('/:postId', isAuthenticated, async (req, res, next) => {
     let data;
     const postId = parseInt(req.params.postId, 10);
     const { userId } = req;
-    const post = await getSinglePost(postId);
+    const post = await getSinglePost(postId, userId);
     if (!post || post.userId !== userId) {
       throw new Error('You are not authorized to update this post.');
     }
