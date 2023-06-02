@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 const {
   createPost,
   getAllPost,
@@ -14,7 +15,7 @@ const {
 const { isAuthenticated } = require('../../middleware/middleware');
 
 const router = express.Router();
-
+const upload = multer({ dest: 'uploads/' });
 router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
   try {
     const { userId } = req;
@@ -135,33 +136,59 @@ router.get('/most-liked', isAuthenticated, async (req, res, next) => {
   }
 });
 
-router.post('/', isAuthenticated, async (req, res, next) => {
-  try {
-    const {
-      description,
-      location: { latitude, longitude },
-    } = req.body;
-    if (!description) {
-      res.status(400);
-      throw new Error('You must provide an description');
-    }
-    if (!latitude && !longitude) {
-      res.status(400);
-      throw new Error('You must provide an latitude and longitude');
-    }
+router.post(
+  '/',
+  isAuthenticated,
+  upload.single('photo'),
+  async (req, res, next) => {
+    try {
+      const {
+        description,
+        location: { latitude, longitude },
+      } = req.body;
+      console.log(req.body);
+      if (!description) {
+        res.status(400);
+        console.log(description, latitude, longitude);
+        throw new Error('You must provide an description');
+      }
+      if (!latitude && !longitude) {
+        res.status(400);
+        throw new Error('You must provide an latitude and longitude');
+      }
 
-    const { userId } = req;
-    const post = await createPost(userId, description, latitude, longitude);
+      const { userId } = req;
 
-    res.status(201).json({
-      data: post,
-      message: 'New Post has been created',
-      status: true,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
+      const photo = req.file;
+      if (!photo) {
+        res.status(400).json({ error: 'No photo provided' });
+        return;
+      }
+
+      // Process the photo and save it to Google Cloud Storage
+      const photoPath = photo.path;
+      const destinationPath = `post-photos/${photo.originalname}`;
+
+      const post = await createPost(
+        userId,
+        description,
+        latitude,
+        longitude,
+        photoPath,
+        destinationPath,
+        photo.originalname,
+      );
+
+      res.status(201).json({
+        data: post,
+        message: 'New Post has been created',
+        status: true,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 router.delete('/:postId', isAuthenticated, async (req, res, next) => {
   try {
     const postId = parseInt(req.params.postId, 10);

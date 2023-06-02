@@ -5,11 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 const { db } = require('../../utils/db');
 const bucketServiceAccount = require('../../../keys/BucketCredential.json');
 
-// Specify the path to your credentials file
-// const keyFilename = path.resolve(
-//   __dirname,
-//   '../../../keys/bucketCredential.json',
-// );
 const publicUrl = 'https://storage.googleapis.com/$bucketName/$objectPath';
 
 const storage = new Storage({
