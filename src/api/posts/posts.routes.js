@@ -1,5 +1,5 @@
 const express = require('express');
-const multer = require('multer');
+const upload = require('../../middleware/multer');
 const {
   createPost,
   getAllPost,
@@ -15,7 +15,6 @@ const {
 const { isAuthenticated } = require('../../middleware/middleware');
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
 router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
   try {
     const { userId } = req;

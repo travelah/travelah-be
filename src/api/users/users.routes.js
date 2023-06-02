@@ -1,5 +1,4 @@
 const express = require('express');
-const multer = require('multer');
 const { isAuthenticated } = require('../../middleware/middleware');
 const {
   findUserById,
@@ -8,7 +7,8 @@ const {
 } = require('./users.services');
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = require('../../middleware/multer');
+
 router.get('/profile', isAuthenticated, async (req, res, next) => {
   try {
     const { userId } = req.payload;
