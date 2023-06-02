@@ -58,6 +58,8 @@ model Post {
   longitude   Decimal?
   latitude    Decimal?
   location    String?
+  postPhotoPath String?
+  postPhotoName String?
   likes       Like[]    @relation("PostLikes")
   comments    Comment[] @relation("PostComments")
   createdAt   DateTime  @default(now())
