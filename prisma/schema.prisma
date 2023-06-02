@@ -55,9 +55,11 @@ model Post {
   userId      Int
   user        User      @relation("UserPosts",fields: [userId], references: [id], onDelete: Cascade)
   description String   @db.Text
-  location    String
+  longitude   Decimal?
+  latitude    Decimal?
+  location    String?
   likes       Like[]    @relation("PostLikes")
-  comments     Comment[]    @relation("PostComments")
+  comments    Comment[] @relation("PostComments")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

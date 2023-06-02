@@ -15,10 +15,10 @@ function getGroupChat(groupId, page, take) {
     },
     include: {
       chats: {
-        take,
         orderBy: {
-          id: 'desc',
+          createdAt: 'desc',
         },
+        take: 1,
       },
     },
     skip,
@@ -27,10 +27,18 @@ function getGroupChat(groupId, page, take) {
     },
   });
 }
-function getAllGroup(page, take) {
+async function getAllGroup(page, take) {
   return db.groupChat.findMany({
     skip: take * page,
     take,
+    include: {
+      chats: {
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 1,
+      },
+    },
     orderBy: {
       id: 'desc',
     },
