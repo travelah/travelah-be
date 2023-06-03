@@ -10,6 +10,7 @@ const {
   unlikePost,
   commentPost,
   checkIfUserAlreadyLikeAPost,
+  getMyPost,
 } = require('./posts.services');
 const { isAuthenticated } = require('../../middleware/middleware');
 const { uploadToStorage, upload } = require('../../middleware/multer');
@@ -48,6 +49,31 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     res.status(200).json({
       data: post,
       message: 'All Post has been retrieved',
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/mypost', isAuthenticated, async (req, res, next) => {
+  try {
+    let { page, take } = req.query;
+    if (!page) {
+      page = 1;
+    } else {
+      page = parseInt(page, 10);
+    }
+    if (!take) {
+      take = 5;
+    } else {
+      take = parseInt(take, 10);
+    }
+    const { userId } = req;
+    const post = await getMyPost(page, take, userId);
+    res.status(200).json({
+      data: post,
+      message: 'All of your post has been retrieved',
       status: true,
     });
   } catch (err) {

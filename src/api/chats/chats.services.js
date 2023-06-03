@@ -29,7 +29,7 @@ function getGroupChat(groupId, page, take) {
 }
 async function getAllGroup(page, take, userId) {
   return db.groupChat.findMany({
-    skip: take * page,
+    skip: take * (page - 1),
     take,
     include: {
       chats: {
