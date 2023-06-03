@@ -27,7 +27,7 @@ function getGroupChat(groupId, page, take) {
     },
   });
 }
-async function getAllGroup(page, take) {
+async function getAllGroup(page, take, userId) {
   return db.groupChat.findMany({
     skip: take * page,
     take,
@@ -42,8 +42,12 @@ async function getAllGroup(page, take) {
     orderBy: {
       id: 'desc',
     },
+    where: {
+      userId,
+    },
   });
 }
+
 function createGroupChat(userId) {
   return db.groupChat.create({
     data: {

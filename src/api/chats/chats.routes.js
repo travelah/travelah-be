@@ -42,6 +42,7 @@ router.get('/group/:groupId', isAuthenticated, async (req, res, next) => {
 // get all group
 router.get('/', isAuthenticated, async (req, res, next) => {
   try {
+    const { userId } = req;
     let { page, take } = req.query;
     if (!page) {
       page = 1;
@@ -53,11 +54,11 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     } else {
       take = parseInt(take, 10);
     }
-    const group = await getAllGroup(page, take);
+    const group = await getAllGroup(page, take, userId);
 
     res.status(200).json({
       data: group,
-      message: 'Latest Group Chat has been retrieved',
+      message: 'Your Group Chat with also the latest chat has been retrieved',
       status: true,
     });
   } catch (err) {
