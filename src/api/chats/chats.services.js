@@ -18,10 +18,10 @@ function getGroupChat(groupId, page, take) {
         orderBy: {
           createdAt: 'desc',
         },
-        take: 1,
       },
     },
     skip,
+    take,
     orderBy: {
       id: 'desc',
     },
