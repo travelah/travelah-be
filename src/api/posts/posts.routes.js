@@ -1,5 +1,4 @@
 const express = require('express');
-const upload = require('../../middleware/multer');
 const {
   createPost,
   getAllPost,
@@ -13,6 +12,7 @@ const {
   checkIfUserAlreadyLikeAPost,
 } = require('./posts.services');
 const { isAuthenticated } = require('../../middleware/middleware');
+const { uploadToStorage, upload } = require('../../middleware/multer');
 
 const router = express.Router();
 router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
@@ -155,7 +155,8 @@ router.post(
         res.status(400);
         throw new Error('You must provide an latitude and longitude');
       }
-
+      const timestamp = new Date().getTime();
+      console.log('sampe sini');
       const { userId } = req;
 
       const photo = req.file;
@@ -165,17 +166,17 @@ router.post(
       }
 
       // Process the photo and save it to Google Cloud Storage
-      const photoPath = photo.path;
-      const destinationPath = `post-photos/${photo.originalname}`;
+      const destinationPath = 'public/images'; // Specify the desired folder name
+
+      await uploadToStorage(photo, destinationPath, timestamp);
 
       const post = await createPost(
         userId,
         description,
         latitude,
         longitude,
-        photoPath,
         destinationPath,
-        photo.originalname,
+        `${timestamp}-${photo.originalname}`,
       );
 
       res.status(201).json({

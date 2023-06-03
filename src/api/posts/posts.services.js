@@ -1,18 +1,9 @@
 const axios = require('axios');
-const { v4: uuidv4 } = require('uuid');
-const { Storage } = require('@google-cloud/storage');
 const { db } = require('../../utils/db');
 const { mapsApiKey } = require('../../../keys/mapsApiKey.json');
 
 const { findUserById } = require('../users/users.services');
 
-const bucketServiceAccount = require('../../../keys/BucketCredential.json');
-
-const publicUrl = 'https://storage.googleapis.com/$bucketName/$objectPath';
-
-const storage = new Storage({
-  credentials: bucketServiceAccount,
-});
 const bucketName = 'travelah-storage';
 // function
 async function getSinglePost(postId, userId) {
@@ -374,23 +365,10 @@ async function createPost(
   desc,
   latitude,
   longitude,
-  photoPath,
   destinationPath,
   photoOriginalName,
 ) {
   const location = await getLocationName(latitude, longitude);
-  const bucket = storage.bucket(bucketName);
-
-  // Generate a unique file name using UUID and preserve the file extension
-  const uniqueFileName = `${uuidv4()}.jpg`; // Change the extension if the file is in a different format
-
-  const file = await bucket.upload(photoPath, {
-    destination: `${destinationPath}/${uniqueFileName}`,
-  });
-
-  const uploadedFile = file[0];
-  const filePath = `https://storage.googleapis.com/${bucketName}/${uploadedFile.name}`;
-
   return db.post.create({
     data: {
       user: {
@@ -400,8 +378,8 @@ async function createPost(
       location,
       latitude,
       longitude,
-      postPhotoPath: filePath,
-      postPhotoName: `${photoOriginalName}/${uniqueFileName}`,
+      postPhotoPath: `https://storage.googleapis.com/${bucketName}/${destinationPath}`,
+      postPhotoName: photoOriginalName,
     },
   });
 }

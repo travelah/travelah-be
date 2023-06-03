@@ -1,15 +1,6 @@
 const bcrypt = require('bcrypt');
-const { Storage } = require('@google-cloud/storage');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
 const { db } = require('../../utils/db');
-const bucketServiceAccount = require('../../../keys/BucketCredential.json');
 
-const publicUrl = 'https://storage.googleapis.com/$bucketName/$objectPath';
-
-const storage = new Storage({
-  credentials: bucketServiceAccount,
-});
 const bucketName = 'travelah-storage';
 function findUserByEmail(email) {
   return db.user.findUnique({
@@ -19,38 +10,14 @@ function findUserByEmail(email) {
   });
 }
 
-async function uploadProfilephoto(
-  photoPath,
-  destinationPath,
-  userId,
-  photoOriginalName,
-) {
-  const bucket = storage.bucket(bucketName);
-
-  // Generate a unique file name using UUID and preserve the file extension
-  const uniqueFileName = `${uuidv4()}.jpg`; // Change the extension if the file is in a different format
-
-  const file = await bucket.upload(photoPath, {
-    destination: `${destinationPath}/${uniqueFileName}`,
-  });
-
-  const uploadedFile = file[0];
-  const filePath = `https://storage.googleapis.com/${bucketName}/${uploadedFile.name}`;
-
+async function updateProfile(user, userId, destinationPath, photoOriginalName) {
   return db.user.update({
     data: {
-      profilePicPath: filePath,
-      profilePicName: `${photoOriginalName}/${uniqueFileName}`,
+      ...user,
+      profilePicPath: `https://storage.googleapis.com/${bucketName}/${destinationPath}`,
+      profilePicName: photoOriginalName,
     },
-    where: {
-      id: userId,
-    },
-  });
-}
 
-async function updateProfile(user, userId) {
-  return db.user.update({
-    data: user,
     where: {
       id: userId,
     },
@@ -86,5 +53,4 @@ module.exports = {
   createUserByEmailAndPassword,
   createUserOnlyByEmail,
   updateProfile,
-  uploadProfilephoto,
 };

@@ -1,13 +1,9 @@
 const express = require('express');
 const { isAuthenticated } = require('../../middleware/middleware');
-const {
-  findUserById,
-  updateProfile,
-  uploadProfilephoto,
-} = require('./users.services');
+const { findUserById, updateProfile } = require('./users.services');
 
 const router = express.Router();
-const upload = require('../../middleware/multer');
+const { upload, uploadToStorage } = require('../../middleware/multer');
 
 router.get('/profile', isAuthenticated, async (req, res, next) => {
   try {
@@ -32,31 +28,34 @@ router.post(
     try {
       const { userId } = req.payload;
       const user = await findUserById(userId);
+      if (!user) {
+        res.status(400);
+        throw new Error('You are not found as a user');
+      }
       let updatedProfile;
-      let updatedProfilePhoto;
-      delete user.password;
+
       if (req.file != null) {
+        const timestamp = new Date().getTime();
         const photo = req.file;
         if (!photo) {
           res.status(400).json({ error: 'No photo provided' });
           return;
         }
-
+        console.log('masuk pak');
         // Process the photo and save it to Google Cloud Storage
-        const photoPath = photo.path;
-        const destinationPath = `profile-photos/${photo.originalname}`;
+        const destinationPath = 'public/images'; // Specify the desired folder name
+        console.log(req.body);
+        await uploadToStorage(photo, destinationPath, timestamp);
 
-        updatedProfilePhoto = await uploadProfilephoto(
-          photoPath,
-          destinationPath,
+        updatedProfile = await updateProfile(
+          req.body,
           userId,
-          photo.originalname,
+          destinationPath,
+          `${timestamp}-${photo.originalname}`,
         );
-        updatedProfile = await updateProfile(req.body, userId);
 
         res.status(200).json({
           data: updatedProfile,
-          // updatedProfile,
           message: 'Success retrieve your profile',
           status: true,
         });
@@ -64,7 +63,6 @@ router.post(
         updatedProfile = await updateProfile(req.body, userId);
         res.status(200).json({
           data: updatedProfile,
-          // updatedProfile,
           message: 'Success retrieve your profile',
           status: true,
         });
