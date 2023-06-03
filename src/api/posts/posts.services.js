@@ -27,7 +27,9 @@ async function getSinglePost(postId, userId) {
       },
     },
   });
-
+  if (!post) {
+    throw new Error('Post not found!');
+  }
   const likeTypes = ['LIKE', 'DONTLIKE'];
 
   // eslint-disable-next-line operator-linebreak
@@ -483,7 +485,17 @@ async function createPost(
     },
   });
 }
-function deletePost(postId) {
+async function deletePost(postId) {
+  const post = await db.post.findUnique({
+    where: {
+      id: postId,
+    },
+  });
+
+  if (!post) {
+    throw new Error('Post not found!');
+  }
+
   return db.post.delete({
     where: {
       id: postId,
@@ -491,6 +503,15 @@ function deletePost(postId) {
   });
 }
 async function updatePost(iduser, postId, data) {
+  const post = await db.post.findUnique({
+    where: {
+      id: postId,
+    },
+  });
+
+  if (!post) {
+    throw new Error('Post not found!');
+  }
   if (data.description && data.location) {
     const location = await getLocationName(
       data.location.latitude,

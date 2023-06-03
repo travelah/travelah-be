@@ -112,7 +112,16 @@ function unbookmarkChat(chatId) {
   });
 }
 
-function deleteChat(chatId) {
+async function deleteChat(chatId) {
+  const chat = await db.chat.findUnique({
+    where: {
+      id: chatId,
+    },
+  });
+
+  if (!chat) {
+    throw new Error('Chat not found!');
+  }
   return db.chat.delete({
     where: {
       id: chatId,
@@ -120,6 +129,15 @@ function deleteChat(chatId) {
   });
 }
 async function deleteGroupChat(groupId) {
+  const group = await db.groupChat.findUnique({
+    where: {
+      id: groupId,
+    },
+  });
+
+  if (!group) {
+    throw new Error('Chat Group not found!');
+  }
   return db.$transaction(async (prisma) => {
     await prisma.chat.deleteMany({
       where: {
