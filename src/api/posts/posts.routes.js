@@ -192,10 +192,11 @@ router.delete('/:postId', isAuthenticated, async (req, res, next) => {
   try {
     const postId = parseInt(req.params.postId, 10);
     const { userId } = req;
-    const post = await getSinglePost(postId);
+    const post = await getSinglePost(postId, userId);
     if (!post || post.userId !== userId) {
       throw new Error('You are not authorized to delete this post.');
     }
+    console.log(post, post.userId, userId);
 
     const postDel = await deletePost(postId);
     res.status(201).json({

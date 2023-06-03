@@ -14,9 +14,9 @@ steps:
     entrypoint: 'npx'
     args: ['prisma', 'migrate', 'deploy']
   # Run Prisma migration save command (initial migration)
-  - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
-    entrypoint: 'npx'
-    args: ['prisma', 'migrate', 'dev', '--name', 'initial', '--create-only']
+  # - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
+  #   entrypoint: 'npx'
+  #   args: ['prisma', 'migrate', 'dev', '--name', 'initial', '--create-only']
   # Apply pending migrations
   # - name: 'gcr.io/$PROJECT_ID/demo-app:$COMMIT_SHA'
   #   entrypoint: 'npx'

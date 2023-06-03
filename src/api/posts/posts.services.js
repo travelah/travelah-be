@@ -37,64 +37,59 @@ async function getSinglePost(postId, userId) {
     },
   });
 
-  const likeCounts = await db.like.groupBy({
-    by: ['postId'],
-    where: {
-      postId,
-      likeType: 'LIKE',
-    },
-    _count: true,
+  const likeTypes = ['LIKE', 'DONTLIKE'];
+
+  // eslint-disable-next-line operator-linebreak
+  const [likeCounts, isUserLike, isUserDontLike, commentCount, user] =
+    await db.$transaction([
+      db.like.groupBy({
+        by: ['postId', 'likeType'], // Include 'likeType' in the grouping
+        where: {
+          postId,
+          likeType: { in: likeTypes },
+        },
+        _count: true,
+      }),
+      db.like.findFirst({
+        where: {
+          postId: post.id,
+          userId,
+          likeType: 'LIKE',
+        },
+      }),
+      db.like.findFirst({
+        where: {
+          postId: post.id,
+          userId,
+          likeType: 'DONTLIKE',
+        },
+      }),
+      db.comment.count({
+        where: {
+          postId: post.id,
+        },
+      }),
+      findUserById(userId),
+    ]);
+
+  const likeCountsMap = {};
+  const dontLikeCountsMap = {};
+
+  likeCounts.forEach((item) => {
+    const { likeType, _count } = item;
+
+    if (likeType === 'LIKE') {
+      likeCountsMap[postId] = _count;
+    } else if (likeType === 'DONTLIKE') {
+      dontLikeCountsMap[postId] = _count;
+    }
   });
 
-  const dontLikeCounts = await db.like.groupBy({
-    by: ['postId'],
-    where: {
-      postId,
-      likeType: 'DONTLIKE',
-    },
-    _count: true,
-  });
-
-  const likeCountsMap = likeCounts.reduce((result, item) => {
-    const map = { ...result };
-    // eslint-disable-next-line no-underscore-dangle
-    map[item.postId] = item._count;
-    return map;
-  }, {});
-
-  const dontLikeCountsMap = dontLikeCounts.reduce((result, item) => {
-    const map = { ...result };
-    // eslint-disable-next-line no-underscore-dangle
-    map[item.postId] = item._count;
-    return map;
-  }, {});
-
-  const isUserLike = await db.like.findFirst({
-    where: {
-      postId: post.id,
-      userId,
-      likeType: 'LIKE',
-    },
-  });
-
-  const isUserDontLike = await db.like.findFirst({
-    where: {
-      postId: post.id,
-      userId,
-      likeType: 'DONTLIKE',
-    },
-  });
-  const commentCount = await db.comment.count({
-    where: {
-      postId: post.id,
-    },
-  });
-  console.log(userId, 'userId nih brah');
-  const user = await findUserById(userId);
   const profilePicOfUser = `${user.profilePicPath}/${user.profilePicName}`;
   const userFullName = user.fullName;
   const likeCount = likeCountsMap[post.id] || 0;
   const dontLikeCount = dontLikeCountsMap[post.id] || 0;
+
   return {
     ...post,
     profilePicOfUser,
@@ -108,91 +103,99 @@ async function getSinglePost(postId, userId) {
 }
 
 async function getAllPost(page, take, userId) {
-  const posts = await db.post.findMany({
-    skip: take * page,
-    take,
-  });
-  const postIds = posts.map((post) => post.id);
+  const postsRetrieved = await db.$transaction(async () => {
+    const posts = await db.post.findMany({
+      skip: take * page,
+      take,
+    });
 
-  const likeCounts = await db.like.groupBy({
-    by: ['postId'],
-    where: {
-      postId: {
-        in: postIds,
+    const postIds = posts.map((post) => post.id);
+
+    const likeCounts = await db.like.groupBy({
+      by: ['postId'],
+      where: {
+        postId: {
+          in: postIds,
+        },
+        likeType: 'LIKE',
       },
-      likeType: 'LIKE',
-    },
-    _count: true,
-  });
+      _count: true,
+    });
 
-  const dontLikeCounts = await db.like.groupBy({
-    by: ['postId'],
-    where: {
-      postId: {
-        in: postIds,
+    const dontLikeCounts = await db.like.groupBy({
+      by: ['postId'],
+      where: {
+        postId: {
+          in: postIds,
+        },
+        likeType: 'DONTLIKE',
       },
-      likeType: 'DONTLIKE',
-    },
-    _count: true,
+      _count: true,
+    });
+
+    const likeCountsMap = likeCounts.reduce((result, item) => {
+      const map = { ...result };
+      // eslint-disable-next-line no-underscore-dangle
+      map[item.postId] = item._count;
+      return map;
+    }, {});
+
+    const dontLikeCountsMap = dontLikeCounts.reduce((result, item) => {
+      const map = { ...result };
+      // eslint-disable-next-line no-underscore-dangle
+      map[item.postId] = item._count;
+      return map;
+    }, {});
+
+    const postsWithLikeAndDontLikeCount = await Promise.all(
+      posts.map(async (post) => {
+        const isUserLike = await db.like.findFirst({
+          where: {
+            postId: post.id,
+            userId,
+            likeType: 'LIKE',
+          },
+        });
+
+        const isUserDontLike = await db.like.findFirst({
+          where: {
+            postId: post.id,
+            userId,
+            likeType: 'DONTLIKE',
+          },
+        });
+
+        const commentCount = await db.comment.count({
+          where: {
+            postId: post.id,
+          },
+        });
+
+        const user = await findUserById(userId);
+
+        const profilePicOfUser = `${user.profilePicPath}/${user.profilePicName}`;
+        const userFullName = user.fullName;
+
+        const likeCount = likeCountsMap[post.id] || 0;
+        const dontLikeCount = dontLikeCountsMap[post.id] || 0;
+
+        return {
+          ...post,
+          userFullName,
+          profilePicOfUser,
+          likeCount,
+          dontLikeCount,
+          commentCount,
+          isUserLike: Boolean(isUserLike),
+          isUserDontLike: Boolean(isUserDontLike),
+        };
+      }),
+    );
+
+    return postsWithLikeAndDontLikeCount;
   });
 
-  const likeCountsMap = likeCounts.reduce((result, item) => {
-    const map = { ...result };
-    // eslint-disable-next-line no-underscore-dangle
-    map[item.postId] = item._count;
-    return map;
-  }, {});
-
-  const dontLikeCountsMap = dontLikeCounts.reduce((result, item) => {
-    const map = { ...result };
-    // eslint-disable-next-line no-underscore-dangle
-    map[item.postId] = item._count;
-    return map;
-  }, {});
-
-  const postsWithLikeAndDontLikeCount = await Promise.all(
-    posts.map(async (post) => {
-      const isUserLike = await db.like.findFirst({
-        where: {
-          postId: post.id,
-          userId,
-          likeType: 'LIKE',
-        },
-      });
-
-      const isUserDontLike = await db.like.findFirst({
-        where: {
-          postId: post.id,
-          userId,
-          likeType: 'DONTLIKE',
-        },
-      });
-      const commentCount = await db.comment.count({
-        where: {
-          postId: post.id,
-        },
-      });
-      const user = await findUserById(userId);
-      const profilePicOfUser = `${user.profilePicPath}/${user.profilePicName}`;
-      const userFullName = user.fullName;
-
-      const likeCount = likeCountsMap[post.id] || 0;
-      const dontLikeCount = dontLikeCountsMap[post.id] || 0;
-
-      return {
-        ...post,
-        userFullName,
-        profilePicOfUser,
-        likeCount,
-        dontLikeCount,
-        commentCount,
-        isUserLike: Boolean(isUserLike),
-        isUserDontLike: Boolean(isUserDontLike),
-      };
-    }),
-  );
-
-  return postsWithLikeAndDontLikeCount;
+  return postsRetrieved;
 }
 
 async function getLocationName(latitude, longitude) {
