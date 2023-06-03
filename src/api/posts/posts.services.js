@@ -60,7 +60,7 @@ async function getSinglePost(postId, userId) {
           postId: post.id,
         },
       }),
-      findUserById(userId),
+      findUserById(post.userId),
     ]);
 
   const likeCountsMap = {};
@@ -79,14 +79,14 @@ async function getSinglePost(postId, userId) {
   const profilePicOfUser = user?.profilePicPath
     ? `${user.profilePicPath}/${user.profilePicName}`
     : null;
-  const userFullName = user.fullName;
+  const posterFullName = user.fullName;
   const likeCount = likeCountsMap[post.id] || 0;
   const dontLikeCount = dontLikeCountsMap[post.id] || 0;
 
   return {
     ...post,
     profilePicOfUser,
-    userFullName,
+    posterFullName,
     likeCount,
     dontLikeCount,
     commentCount,
@@ -167,19 +167,19 @@ async function getMyPost(page, take, userId) {
           },
         });
 
-        const user = await findUserById(userId);
+        const user = await findUserById(post.userId);
 
         const profilePicOfUser = user?.profilePicPath
           ? `${user.profilePicPath}/${user.profilePicName}`
           : null;
-        const userFullName = user.fullName;
+        const posterFullName = user.fullName;
 
         const likeCount = likeCountsMap[post.id] || 0;
         const dontLikeCount = dontLikeCountsMap[post.id] || 0;
 
         return {
           ...post,
-          userFullName,
+          posterFullName,
           profilePicOfUser,
           likeCount,
           dontLikeCount,
@@ -264,19 +264,19 @@ async function getAllPost(page, take, userId) {
           },
         });
 
-        const user = await findUserById(userId);
+        const user = await findUserById(post.userId);
 
         const profilePicOfUser = user?.profilePicPath
           ? `${user.profilePicPath}/${user.profilePicName}`
           : null;
-        const userFullName = user.fullName;
+        const posterFullName = user.fullName;
 
         const likeCount = likeCountsMap[post.id] || 0;
         const dontLikeCount = dontLikeCountsMap[post.id] || 0;
 
         return {
           ...post,
-          userFullName,
+          posterFullName,
           profilePicOfUser,
           likeCount,
           dontLikeCount,
@@ -385,19 +385,19 @@ async function getMostLikedPost(userId) {
           },
         });
 
-        const user = await findUserById(userId);
+        const user = await findUserById(post.userId);
 
         const profilePicOfUser = user?.profilePicPath
           ? `${user.profilePicPath}/${user.profilePicName}`
           : null;
-        const userFullName = user.fullName;
+        const posterFullName = user.fullName;
 
         const likeCount = likeCountsMap[post.id] || 0;
         const dontLikeCount = dontLikeCountsMap[post.id] || 0;
 
         return {
           ...post,
-          userFullName,
+          posterFullName,
           profilePicOfUser,
           likeCount,
           dontLikeCount,

@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const multerGoogleStorage = require('multer-google-storage');
 const { Storage } = require('@google-cloud/storage');
+const accessSecret = require('../utils/secretKey');
 
 const keyFilename = path.join(__dirname, '../../keys/BucketCredential.json');
 // const storage = new Storage({
@@ -11,6 +12,8 @@ const bucketName = 'travelah-storage';
 const projectId = 'travelah-388302';
 
 // Configure the Multer storage engine for Google Cloud Storage
+
+console.log(accessSecret, 'anjaaay');
 const storage = new Storage({
   keyFilename,
   projectId,
