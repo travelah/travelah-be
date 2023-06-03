@@ -85,7 +85,9 @@ async function getSinglePost(postId, userId) {
     }
   });
 
-  const profilePicOfUser = `${user.profilePicPath}/${user.profilePicName}`;
+  const profilePicOfUser = user?.profilePicPath
+    ? `${user.profilePicPath}/${user.profilePicName}`
+    : null;
   const userFullName = user.fullName;
   const likeCount = likeCountsMap[post.id] || 0;
   const dontLikeCount = dontLikeCountsMap[post.id] || 0;
@@ -173,7 +175,9 @@ async function getAllPost(page, take, userId) {
 
         const user = await findUserById(userId);
 
-        const profilePicOfUser = `${user.profilePicPath}/${user.profilePicName}`;
+        const profilePicOfUser = user?.profilePicPath
+          ? `${user.profilePicPath}/${user.profilePicName}`
+          : null;
         const userFullName = user.fullName;
 
         const likeCount = likeCountsMap[post.id] || 0;
@@ -292,7 +296,9 @@ async function getMostLikedPost(userId) {
 
         const user = await findUserById(userId);
 
-        const profilePicOfUser = `${user.profilePicPath}/${user.profilePicName}`;
+        const profilePicOfUser = user?.profilePicPath
+          ? `${user.profilePicPath}/${user.profilePicName}`
+          : null;
         const userFullName = user.fullName;
 
         const likeCount = likeCountsMap[post.id] || 0;
