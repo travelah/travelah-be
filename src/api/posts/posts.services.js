@@ -103,7 +103,7 @@ async function getMyPost(page, take, userId) {
       skip: take * (page - 1),
       take,
       where: {
-        id: userId,
+        userId,
       },
     });
 
