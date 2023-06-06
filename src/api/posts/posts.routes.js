@@ -85,6 +85,10 @@ router.post('/like/:postId', isAuthenticated, async (req, res, next) => {
   try {
     const { likeType } = req.query;
     const postId = parseInt(req.params.postId, 10);
+    const post = await getSinglePost(postId);
+    if (!post) {
+      throw new Error(`there is no post with id of ${postId}`);
+    }
     const { userId } = req;
     const userLikeCheck = await checkIfUserAlreadyLikeAPost(userId, postId);
     if (userLikeCheck === null) {
@@ -94,35 +98,26 @@ router.post('/like/:postId', isAuthenticated, async (req, res, next) => {
         message: `Post with id ${postId} has been liked or Disliked`,
         status: true,
       });
-    } else {
-      throw new Error('You already liked or dont liked this post');
-    }
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.delete('/like/:postId', isAuthenticated, async (req, res, next) => {
-  try {
-    const postId = parseInt(req.params.postId, 10);
-
-    const post = await getSinglePost(postId);
-    if (!post) {
-      throw new Error(`there is no post with id of ${postId}`);
-    }
-    const { userId } = req;
-    console.log(postId, userId);
-    const userLikeCheck = await checkIfUserAlreadyLikeAPost(userId, postId);
-    console.log(userLikeCheck);
-    if (userLikeCheck !== null) {
-      const postLiked = await unlikePost(userId, postId);
+    } else if (userLikeCheck.likeType === likeType) {
+      const postUnliked = await unlikePost(userId, postId);
       res.status(200).json({
-        data: postLiked,
-        message: `Post with id ${postId} has been unliked or un-dont like`,
+        data: {
+          cancelLike: postUnliked,
+        },
+        message: `Post with id ${postId} has been unliked or un-disliked`,
         status: true,
       });
-    } else {
-      throw new Error('You never like or dont like this post');
+    } else if (userLikeCheck.likeType !== likeType) {
+      const postUnliked = await unlikePost(userId, postId);
+      const postLiked = await likePost(userId, postId, likeType);
+      res.status(200).json({
+        data: {
+          cancelLike: postUnliked,
+          like: postLiked,
+        },
+        message: `Post with id ${postId} has been liked or Disliked`,
+        status: true,
+      });
     }
   } catch (err) {
     next(err);
