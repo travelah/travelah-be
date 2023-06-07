@@ -162,10 +162,7 @@ router.post(
   upload.single('photo'),
   async (req, res, next) => {
     try {
-      const {
-        description,
-        location: { latitude, longitude },
-      } = req.body;
+      const { description, latitude, longitude } = req.body;
       console.log(req.body);
       if (!description) {
         res.status(400);
@@ -245,26 +242,17 @@ router.patch('/:postId', isAuthenticated, async (req, res, next) => {
         description,
       };
     } else if (!req.body.description) {
-      const {
-        location: { latitude, longitude },
-      } = req.body;
+      const { latitude, longitude } = req.body;
       data = {
-        location: {
-          latitude,
-          longitude,
-        },
+        latitude,
+        longitude,
       };
     } else if (req.body.location && req.body.description) {
-      const {
-        description,
-        location: { latitude, longitude },
-      } = req.body;
+      const { description, latitude, longitude } = req.body;
       data = {
         description,
-        location: {
-          latitude,
-          longitude,
-        },
+        latitude,
+        longitude,
       };
     }
     console.log(data);
