@@ -162,12 +162,16 @@ router.post(
   upload.single('photo'),
   async (req, res, next) => {
     try {
-      const { description, latitude, longitude } = req.body;
+      // eslint-disable-next-line object-curly-newline
+      const { title, description, latitude, longitude } = req.body;
+      if (!title) {
+        res.status(400);
+        throw new Error('You must provide a title to create a post');
+      }
       console.log(req.body);
       if (!description) {
         res.status(400);
-        console.log(description, latitude, longitude);
-        throw new Error('You must provide an description');
+        throw new Error('You must provide description for the post');
       }
       if (!latitude && !longitude) {
         res.status(400);
@@ -229,33 +233,13 @@ router.delete('/:postId', isAuthenticated, async (req, res, next) => {
 });
 router.patch('/:postId', isAuthenticated, async (req, res, next) => {
   try {
-    let data;
     const postId = parseInt(req.params.postId, 10);
     const { userId } = req;
     const post = await getSinglePost(postId, userId);
     if (!post || post.userId !== userId) {
       throw new Error('You are not authorized to update this post.');
     }
-    if (!req.body.location) {
-      const { description } = req.body;
-      data = {
-        description,
-      };
-    } else if (!req.body.description) {
-      const { latitude, longitude } = req.body;
-      data = {
-        latitude,
-        longitude,
-      };
-    } else if (req.body.location && req.body.description) {
-      const { description, latitude, longitude } = req.body;
-      data = {
-        description,
-        latitude,
-        longitude,
-      };
-    }
-    console.log(data);
+    const data = req.body;
     const postNew = await updatePost(userId, postId, data);
 
     res.status(200).json({

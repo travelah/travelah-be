@@ -54,6 +54,7 @@ model Post {
   id          Int       @id @unique @default(autoincrement())
   userId      Int
   user        User      @relation("UserPosts",fields: [userId], references: [id], onDelete: Cascade)
+  title       String    @default("My Post")
   description String   @db.Text
   longitude   Decimal?
   latitude    Decimal?

@@ -512,46 +512,29 @@ async function updatePost(iduser, postId, data) {
   if (!post) {
     throw new Error('Post not found!');
   }
-  if (data.description && data.latitude && data.longitude) {
+  if (data.latitude && data.longitude) {
     const location = await getLocationName(data.latitude, data.longitude);
     return db.post.update({
       where: {
         id: postId,
       },
       data: {
-        description: data.description,
+        ...data,
         location,
-        latitude: data.latitude,
-        longitude: data.longitude,
-      },
-    });
-  }
-  if (!data.description && data.latitude && data.longitude) {
-    console.log('masuk sini kah 2');
-    const location = await getLocationName(data.latitude, data.longitude);
-    return db.post.update({
-      where: {
-        id: postId,
-      },
-      data: {
-        location,
-        latitude: data.latitude,
-        longitude: data.longitude,
-      },
-    });
-  }
-  if (data.description) {
-    console.log('masuk sini kah 3');
-    return db.post.update({
-      where: {
-        id: postId,
-      },
-      data: {
-        description: data.description,
       },
     });
   }
 
+  if (!data.latitude && !data.longitude) {
+    return db.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        ...data,
+      },
+    });
+  }
   return null;
 }
 
