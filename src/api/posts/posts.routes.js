@@ -148,7 +148,7 @@ router.get('/most-liked', isAuthenticated, async (req, res, next) => {
 
     res.status(200).json({
       data: post,
-      message: '2 most liked post has been retrieved',
+      message: '3 most liked post has been retrieved',
       status: true,
     });
   } catch (err) {
@@ -194,6 +194,7 @@ router.post(
 
       const post = await createPost(
         userId,
+        title,
         description,
         latitude,
         longitude,

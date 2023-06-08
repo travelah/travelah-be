@@ -298,9 +298,7 @@ async function getAllPost(page, take, userId) {
 async function getLocationName(latitude, longitude) {
   try {
     const apiKey = mapsApiKey;
-    console.log(latitude, longitude);
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&sensor=true&key=${apiKey}`;
-    console.log(url);
     const response = await axios.get(url);
 
     if (response.data.results.length > 0) {
@@ -317,6 +315,13 @@ async function getLocationName(latitude, longitude) {
 async function getMostLikedPost(userId) {
   const postWithMostLikedRetrieved = await db.$transaction(async () => {
     const posts = await db.post.findMany({
+      where: {
+        likes: {
+          some: {
+            likeType: 'LIKE',
+          },
+        },
+      },
       orderBy: {
         likes: {
           _count: 'desc',
@@ -464,22 +469,24 @@ function commentPost(userId, postId, description) {
 
 async function createPost(
   userId,
+  title,
   desc,
   latitude,
   longitude,
   destinationPath,
   photoOriginalName,
 ) {
-  const location = await getLocationName(latitude, longitude);
+  const location = await getLocationName(Number(latitude), Number(longitude));
   return db.post.create({
     data: {
       user: {
         connect: { id: userId },
       },
+      title,
       description: desc,
       location,
-      latitude,
-      longitude,
+      latitude: Number(latitude),
+      longitude: Number(longitude),
       postPhotoPath: `https://storage.googleapis.com/${bucketName}/${destinationPath}`,
       postPhotoName: photoOriginalName,
     },
