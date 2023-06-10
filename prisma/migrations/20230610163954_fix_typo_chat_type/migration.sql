@@ -6,5 +6,5 @@
 
 */
 -- AlterTable
-ALTER TABLE `chat` DROP COLUMN `typeChat`,
+ALTER TABLE `Chat` DROP COLUMN `typeChat`,
     ADD COLUMN `chatType` INTEGER NOT NULL;
