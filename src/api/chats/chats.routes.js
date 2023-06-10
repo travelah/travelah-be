@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 const {
   getChat,
   getGroupChat,
@@ -84,23 +85,38 @@ router.post('/group', isAuthenticated, async (req, res, next) => {
 // create chat by groupId
 router.post('/:groupId', isAuthenticated, async (req, res, next) => {
   try {
-    const { question, response, chatType } = req.body;
+    const { question } = req.body;
     const { userId } = req;
     const groupId = parseInt(req.params.groupId, 10);
-    if (!question || !response || !chatType || !groupId) {
+
+    if (!question || !groupId) {
       res.status(400);
       throw new Error('You must provide a complete attribute');
     }
+
+    const requestData = {
+      userUtterance: question,
+    };
+    const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
+    const mlResponse = await axios.post(mlEndpoint, requestData);
+    const {
+      altIntent1, altIntent2, chatType, predictedResponse,
+    } = mlResponse.data;
+
     const chat = await createChatbyGroup(
       question,
-      response,
+      predictedResponse,
       chatType,
       groupId,
       userId,
     );
 
     res.status(201).json({
-      data: chat,
+      data: {
+        chat,
+        altIntent1,
+        altIntent2,
+      },
       message: 'New Chat has been created',
       status: true,
     });

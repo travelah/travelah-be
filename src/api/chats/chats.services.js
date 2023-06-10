@@ -62,12 +62,12 @@ function createGroupChat(userId) {
     },
   });
 }
-function createChatbyGroup(question, response, type, groupId, userId) {
+function createChatbyGroup(question, predictedResponse, chatType, groupId, userId) {
   return db.chat.create({
     data: {
       question,
-      response,
-      type,
+      response: predictedResponse,
+      chatType,
       groupChat: {
         connect: {
           id: groupId,

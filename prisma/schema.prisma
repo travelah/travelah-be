@@ -16,11 +16,6 @@ enum LikeType {
   DONTLIKE
 }
 
-enum ChatType {
-  SPOTWISATA
-  KEGIATAN
-  // TO BE ADDED
-}
 
 model User {
   id            Int            @id @unique @default(autoincrement())
@@ -100,7 +95,7 @@ model Chat {
   response			String    @db.Text
   userId      Int
   user        User      @relation("UserChats",fields: [userId], references: [id], onDelete: Cascade)
-  type         ChatType
+  chatType    Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   bookmarked  Boolean
