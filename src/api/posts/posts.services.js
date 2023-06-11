@@ -97,6 +97,43 @@ async function getSinglePost(postId, userId) {
   };
 }
 
+async function getAllComments(postId, userId) {
+  const post = await db.post.findUnique({
+    where: {
+      id: postId,
+    },
+    include: {
+      comments: {
+        orderBy: {
+          createdAt: 'asc',
+        },
+        include: {
+          user: {
+            select: {
+              fullName: true,
+              profilePicPath: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!post) {
+    throw new Error('Post not found!');
+  }
+  const commentCount = await db.comment.count({
+    where: {
+      postId,
+    },
+  });
+  console.log(commentCount);
+
+  return {
+    commentCount,
+    ...post,
+  };
+}
+
 async function getMyPost(page, take, userId) {
   const postsRetrieved = await db.$transaction(async () => {
     const posts = await db.post.findMany({
@@ -557,4 +594,5 @@ module.exports = {
   checkIfUserAlreadyLikeAPost,
   unlikePost,
   getMyPost,
+  getAllComments,
 };

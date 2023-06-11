@@ -11,6 +11,7 @@ const {
   commentPost,
   checkIfUserAlreadyLikeAPost,
   getMyPost,
+  getAllComments,
 } = require('./posts.services');
 const { isAuthenticated } = require('../../middleware/middleware');
 const { uploadToStorage, upload } = require('../../middleware/multer');
@@ -24,6 +25,21 @@ router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
     res.status(200).json({
       data: post,
       message: `Post with id ${postId} has been retrieved`,
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/all-comments/:postId', isAuthenticated, async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const postId = parseInt(req.params.postId, 10);
+    const post = await getAllComments(postId, userId);
+    res.status(200).json({
+      data: post,
+      message: `All comments from Post with id ${postId} has been retrieved`,
       status: true,
     });
   } catch (err) {

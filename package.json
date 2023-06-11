@@ -41,7 +41,8 @@
     "prisma": "^4.14.1",
     "request": "^2.88.2",
     "standard": "^17.0.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "websocket": "^1.0.34"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
