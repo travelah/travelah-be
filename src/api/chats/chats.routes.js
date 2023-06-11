@@ -18,7 +18,10 @@ const {
   unbookmarkChat,
   checkIfUserAlreadyBookmarkedAChat,
 } = require('./chats.services');
-const { isAuthenticated } = require('../../middleware/middleware');
+const {
+  isAuthenticated,
+  requireAuthenticatedWebSocket,
+} = require('../../middleware/middleware');
 
 const io = socketIO(httpServer);
 
@@ -31,9 +34,14 @@ const io = socketIO(httpServer);
 
 io.on('connection', (socket) => {
   console.log('New WebSocket connection');
+  socket.on('connect', (token) => {
+    if (!requireAuthenticatedWebSocket(token)) {
+      socket.disconnect();
+    }
+  });
 
   // Handle different events
-  socket.on('createGroupChat', isAuthenticated, async (data) => {
+  socket.on('createGroupChat', requireAuthenticatedWebSocket, async (data) => {
     try {
       const group = await createGroupChat(data.userId);
 
@@ -48,7 +56,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('getGroupChat', isAuthenticated, async (data) => {
+  socket.on('getGroupChat', requireAuthenticatedWebSocket, async (data) => {
     try {
       let { page, take } = data;
 
@@ -88,43 +96,47 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('createChatByGroup', isAuthenticated, async (data) => {
-    try {
-      const { question, userId, groupId } = data;
+  socket.on(
+    'createChatByGroup',
+    requireAuthenticatedWebSocket,
+    async (data) => {
+      try {
+        const { question, userId, groupId } = data;
 
-      if (!question || !groupId) {
-        throw new Error('You must provide a complete attribute');
+        if (!question || !groupId) {
+          throw new Error('You must provide a complete attribute');
+        }
+
+        const requestData = {
+          userUtterance: question,
+        };
+        const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
+        const mlResponse = await axios.post(mlEndpoint, requestData);
+        // eslint-disable-next-line operator-linebreak, object-curly-newline
+        const { altIntent1, altIntent2, chatType, predictedResponse } =
+          mlResponse.data;
+
+        const chat = await createChatbyGroup(
+          question,
+          predictedResponse,
+          chatType,
+          groupId,
+          userId,
+        );
+
+        // Emit the created chat data back to the client
+        socket.broadcast.emit('chatCreated', {
+          data: chat,
+          altIntent1,
+          altIntent2,
+          status: true,
+        });
+      } catch (err) {
+        socket.emit('chatCreationError', { message: err.message });
       }
-
-      const requestData = {
-        userUtterance: question,
-      };
-      const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
-      const mlResponse = await axios.post(mlEndpoint, requestData);
-      // eslint-disable-next-line operator-linebreak, object-curly-newline
-      const { altIntent1, altIntent2, chatType, predictedResponse } =
-        mlResponse.data;
-
-      const chat = await createChatbyGroup(
-        question,
-        predictedResponse,
-        chatType,
-        groupId,
-        userId,
-      );
-
-      // Emit the created chat data back to the client
-      socket.broadcast.emit('chatCreated', {
-        data: chat,
-        altIntent1,
-        altIntent2,
-        status: true,
-      });
-    } catch (err) {
-      socket.emit('chatCreationError', { message: err.message });
-    }
-  });
-  socket.on('bookmarkChat', isAuthenticated, async (data) => {
+    },
+  );
+  socket.on('bookmarkChat', requireAuthenticatedWebSocket, async (data) => {
     try {
       const { chatId } = data;
       const isBookmarked = await checkIfUserAlreadyBookmarkedAChat(chatId);
@@ -149,7 +161,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('deleteChat', isAuthenticated, async (data) => {
+  socket.on('deleteChat', requireAuthenticatedWebSocket, async (data) => {
     try {
       const { chatId } = data;
       const chatDel = await deleteChat(chatId);
@@ -163,7 +175,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('deleteGroupChat', isAuthenticated, async (data) => {
+  socket.on('deleteGroupChat', requireAuthenticatedWebSocket, async (data) => {
     try {
       const { groupId } = data;
       await deleteGroupChat(groupId);

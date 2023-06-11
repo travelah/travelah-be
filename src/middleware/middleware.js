@@ -41,8 +41,29 @@ function isAuthenticated(req, res, next) {
   return next();
 }
 
+function requireAuthenticatedWebSocket(req, res, next) {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token is missing' });
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    req.payload = payload;
+
+    const { userId } = payload;
+    req.userId = userId;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Un-Authorized' });
+  }
+  return next();
+}
+
 module.exports = {
   notFound,
   errorHandler,
   isAuthenticated,
+  requireAuthenticatedWebSocket,
 };
