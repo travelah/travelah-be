@@ -110,7 +110,7 @@ io.on('connection', (socket) => {
       const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
       const mlResponse = await axios.post(mlEndpoint, requestData);
       // eslint-disable-next-line operator-linebreak, object-curly-newline
-      const { altIntent1, altIntent2, chatType, predictedResponse } =
+      const { altIntent1, altIntent2, chatType, predictedResponse, places } =
         mlResponse.data;
 
       const chat = await createChatbyGroup(
@@ -126,6 +126,7 @@ io.on('connection', (socket) => {
         data: chat,
         altIntent1,
         altIntent2,
+        places,
         status: true,
       });
     } catch (err) {
