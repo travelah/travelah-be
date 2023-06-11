@@ -66,7 +66,7 @@ io.on('connection', (socket) => {
 
       // Determine if the request is for a single group chat or a user-specific group chat
       if (data.groupId) {
-        const group = await getGroupChat(data.groupId, page, take, data.userId);
+        const group = await getGroupChat(data.groupId, page, take);
         // Emit the created group chat data back to the client
         socket.broadcast.emit('groupChat', {
           data: group,

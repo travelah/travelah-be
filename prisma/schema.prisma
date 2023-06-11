@@ -23,6 +23,9 @@ model User {
   password      String?
   fullName      String
   isSignedByGoogle Boolean     @default(false)
+  aboutMe       String?         @db.Text
+  age           Int?
+  occupation    String?
   profilePicPath String?
   profilePicName String?
   refreshTokens RefreshToken[] @relation("UserRefreshToken")
