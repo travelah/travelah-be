@@ -86,6 +86,31 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     next(err);
   }
 });
+
+router.get('/group/:groupId', isAuthenticated, async (req, res, next) => {
+  try {
+    const groupId = parseInt(req.params.groupId, 10);
+    let { page, take } = req.query;
+    if (!page) {
+      page = 1;
+    } else {
+      page = parseInt(page, 10);
+    }
+    if (!take) {
+      take = 5;
+    } else {
+      take = parseInt(take, 10);
+    }
+    const group = await getGroupChat(groupId, page, take);
+    res.status(200).json({
+      data: group,
+      message: `GroupChat with id ${groupId} has been retrieved`,
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 io.on('connection', (socket) => {
   console.log('New WebSocket connection');
   socket.on('connect', (token) => {
