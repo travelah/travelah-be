@@ -98,24 +98,36 @@ async function getSinglePost(postId, userId) {
 }
 
 async function getAllComments(page, take, postId) {
-  const post = await db.comment.findMany({
-    skip: take * (page - 1),
-    take,
-    where: {
-      postId,
-    },
-    orderBy: {
-      createdAt: 'asc',
-    },
-    include: {
-      user: {
-        select: {
-          fullName: true,
-          profilePicPath: true,
+  const post = await db.comment
+    .findMany({
+      skip: take * (page - 1),
+      take,
+      where: {
+        postId,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      include: {
+        user: {
+          select: {
+            fullName: true,
+            profilePicPath: true,
+          },
         },
       },
-    },
-  });
+    })
+    .then((comments) => {
+      // Map the comments to include userFullName directly
+      const mappedComments = comments.map((comment) => ({
+        ...comment,
+        userFullName: comment.user.fullName,
+        userProfilePicPath: comment.user.profilePicPath,
+      }));
+
+      // Return the mapped comments
+      return mappedComments;
+    });
   if (!post) {
     throw new Error('Post not found!');
   }
