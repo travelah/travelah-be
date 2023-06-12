@@ -32,6 +32,60 @@ const io = socketIO(httpServer);
 // };
 // app.use(cors(corsOptions));
 
+router.post('/group', isAuthenticated, async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const group = await createGroupChat(userId);
+
+    res.status(201).json({
+      data: group,
+      message: 'New Group Chat has been created',
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/group/:groupId', isAuthenticated, async (req, res, next) => {
+  try {
+    const groupId = parseInt(req.params.groupId, 10);
+
+    await deleteGroupChat(groupId);
+    res.status(201).json({
+      message: `Group Chat with id ${groupId} has been deleted`,
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/', isAuthenticated, async (req, res, next) => {
+  try {
+    const { userId } = req;
+    let { page, take } = req.query;
+    if (!page) {
+      page = 1;
+    } else {
+      page = parseInt(page, 10);
+    }
+    if (!take) {
+      take = 5;
+    } else {
+      take = parseInt(take, 10);
+    }
+    const group = await getAllGroup(page, take, userId);
+
+    res.status(200).json({
+      data: group,
+      message: 'Your Group Chat with also the latest chat has been retrieved',
+      status: true,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 io.on('connection', (socket) => {
   console.log('New WebSocket connection');
   socket.on('connect', (token) => {
