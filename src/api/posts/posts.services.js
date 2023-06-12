@@ -97,23 +97,21 @@ async function getSinglePost(postId, userId) {
   };
 }
 
-async function getAllComments(postId, userId) {
-  const post = await db.post.findUnique({
+async function getAllComments(page, take, postId) {
+  const post = await db.comment.findMany({
+    skip: take * (page - 1),
+    take,
     where: {
-      id: postId,
+      postId,
+    },
+    orderBy: {
+      createdAt: 'asc',
     },
     include: {
-      comments: {
-        orderBy: {
-          createdAt: 'asc',
-        },
-        include: {
-          user: {
-            select: {
-              fullName: true,
-              profilePicPath: true,
-            },
-          },
+      user: {
+        select: {
+          fullName: true,
+          profilePicPath: true,
         },
       },
     },
@@ -121,17 +119,8 @@ async function getAllComments(postId, userId) {
   if (!post) {
     throw new Error('Post not found!');
   }
-  const commentCount = await db.comment.count({
-    where: {
-      postId,
-    },
-  });
-  console.log(commentCount);
 
-  return {
-    commentCount,
-    ...post,
-  };
+  return post;
 }
 
 async function getMyPost(page, take, userId) {

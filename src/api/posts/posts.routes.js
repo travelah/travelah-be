@@ -34,9 +34,19 @@ router.get('/detail/:postId', isAuthenticated, async (req, res, next) => {
 
 router.get('/all-comments/:postId', isAuthenticated, async (req, res, next) => {
   try {
-    const { userId } = req;
+    let { page, take } = req.query;
+    if (!page) {
+      page = 1;
+    } else {
+      page = parseInt(page, 10);
+    }
+    if (!take) {
+      take = 5;
+    } else {
+      take = parseInt(take, 10);
+    }
     const postId = parseInt(req.params.postId, 10);
-    const post = await getAllComments(postId, userId);
+    const post = await getAllComments(page, take, postId);
     res.status(200).json({
       data: post,
       message: `All comments from Post with id ${postId} has been retrieved`,
