@@ -124,9 +124,9 @@ io.on('connection', (socket) => {
   socket.on(
     'createGroupChat',
     requireAuthenticatedWebSocket,
-    async (req, data) => {
+    async (userId, data) => {
       try {
-        const group = await createGroupChat(req.userId);
+        const group = await createGroupChat(userId);
 
         // Emit the created group chat data back to the client
         socket.emit('groupChatCreated', {
@@ -143,7 +143,7 @@ io.on('connection', (socket) => {
   socket.on(
     'getGroupChat',
     requireAuthenticatedWebSocket,
-    async (req, data) => {
+    async (userId, data) => {
       try {
         let { page, take } = data;
 
@@ -169,7 +169,7 @@ io.on('connection', (socket) => {
             status: true,
           });
         } else {
-          const group = await getAllGroup(page, take, req.userId);
+          const group = await getAllGroup(page, take, userId);
           // Emit the created group chat data back to the client
           socket.emit('groupChat', {
             data: group,
@@ -188,7 +188,7 @@ io.on('connection', (socket) => {
     'getAllChatFromGroupChat',
     requireAuthenticatedWebSocket,
     async (data) => {
-      const bearerToken = socket.handshake.headers.authorization;
+      // const bearerToken = socket.handshake.headers.authorization;
       try {
         let { page, take } = data;
 
@@ -225,9 +225,9 @@ io.on('connection', (socket) => {
   socket.on(
     'createChatByGroup',
     requireAuthenticatedWebSocket,
-    async (data) => {
+    async (userId, data) => {
       try {
-        const { question, userId, groupId } = data;
+        const { question, groupId } = data;
 
         if (!question || !groupId) {
           throw new Error('You must provide a complete attribute');
