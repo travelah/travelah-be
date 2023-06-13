@@ -121,132 +121,149 @@ io.on('connection', (socket) => {
   });
 
   // Handle different events
-  socket.on('createGroupChat', isAuthenticated, async (data) => {
-    try {
-      const group = await createGroupChat(data.userId);
+  socket.on(
+    'createGroupChat',
+    requireAuthenticatedWebSocket,
+    async (req, data) => {
+      try {
+        const group = await createGroupChat(req.userId);
 
-      // Emit the created group chat data back to the client
-      socket.broadcast.emit('groupChatCreated', {
-        data: group,
-        message: 'New Group Chat has been created',
-        status: true,
-      });
-    } catch (err) {
-      socket.emit('groupChatCreationError', { message: err.message });
-    }
-  });
-
-  socket.on('getGroupChat', isAuthenticated, async (data) => {
-    try {
-      let { page, take } = data;
-
-      if (!page) {
-        page = 1;
-      } else {
-        page = parseInt(page, 10);
-      }
-
-      if (!take) {
-        take = 5;
-      } else {
-        take = parseInt(take, 10);
-      }
-
-      // Determine if the request is for a single group chat or a user-specific group chat
-      if (data.groupId) {
-        const group = await getGroupChat(data.groupId, page, take);
         // Emit the created group chat data back to the client
-        socket.broadcast.emit('groupChat', {
+        socket.emit('groupChatCreated', {
           data: group,
-          message: `GroupChat with id ${data.groupId} has been retrieved`,
+          message: 'New Group Chat has been created',
           status: true,
         });
-      } else {
-        const group = await getAllGroup(page, take, data.userId);
-        // Emit the created group chat data back to the client
-        socket.broadcast.emit('groupChat', {
-          data: group,
-          message:
-            'Your Group Chat with also the latest chat has been retrieved',
-          status: true,
-        });
+      } catch (err) {
+        socket.emit('groupChatCreationError', { message: err.message });
       }
-    } catch (err) {
-      socket.emit('groupChatCreationError', { message: err.message });
-    }
-  });
+    },
+  );
 
-  socket.on('getAllChatFromGroupChat', isAuthenticated, async (data) => {
-    try {
-      let { page, take } = data;
+  socket.on(
+    'getGroupChat',
+    requireAuthenticatedWebSocket,
+    async (req, data) => {
+      try {
+        let { page, take } = data;
 
-      if (!page) {
-        page = 1;
-      } else {
-        page = parseInt(page, 10);
+        if (!page) {
+          page = 1;
+        } else {
+          page = parseInt(page, 10);
+        }
+
+        if (!take) {
+          take = 5;
+        } else {
+          take = parseInt(take, 10);
+        }
+
+        // Determine if the request is for a single group chat or a user-specific group chat
+        if (data.groupId) {
+          const group = await getGroupChat(data.groupId, page, take);
+          // Emit the created group chat data back to the client
+          socket.emit('groupChat', {
+            data: group,
+            message: `GroupChat with id ${data.groupId} has been retrieved`,
+            status: true,
+          });
+        } else {
+          const group = await getAllGroup(page, take, req.userId);
+          // Emit the created group chat data back to the client
+          socket.emit('groupChat', {
+            data: group,
+            message:
+              'Your Group Chat with also the latest chat has been retrieved',
+            status: true,
+          });
+        }
+      } catch (err) {
+        socket.emit('groupChatCreationError', { message: err.message });
       }
+    },
+  );
 
-      if (!take) {
-        take = 5;
-      } else {
-        take = parseInt(take, 10);
+  socket.on(
+    'getAllChatFromGroupChat',
+    requireAuthenticatedWebSocket,
+    async (data) => {
+      const bearerToken = socket.handshake.headers.authorization;
+      try {
+        let { page, take } = data;
+
+        if (!page) {
+          page = 1;
+        } else {
+          page = parseInt(page, 10);
+        }
+
+        if (!take) {
+          take = 5;
+        } else {
+          take = parseInt(take, 10);
+        }
+
+        if (data.groupId) {
+          const group = await getAllChatFromGroupChat(data.groupId, page, take);
+          socket.emit('chatRetrieved', {
+            data: group,
+            message: `All Chat from Group with Group id ${data.groupId} has been retrieved`,
+            status: true,
+          });
+        } else {
+          throw new Error(
+            'You must provide a complete attribute including groupId',
+          );
+        }
+      } catch (err) {
+        socket.emit('groupChatCreationError', { message: err.message });
       }
+    },
+  );
 
-      if (data.groupId) {
-        const group = await getAllChatFromGroupChat(data.groupId, page, take);
-        socket.broadcast.emit('chatRetrieved', {
-          data: group,
-          message: `All Chat from Group with Group id ${data.groupId} has been retrieved`,
-          status: true,
-        });
-      } else {
-        throw new Error(
-          'You must provide a complete attribute including groupId',
+  socket.on(
+    'createChatByGroup',
+    requireAuthenticatedWebSocket,
+    async (data) => {
+      try {
+        const { question, userId, groupId } = data;
+
+        if (!question || !groupId) {
+          throw new Error('You must provide a complete attribute');
+        }
+
+        const requestData = {
+          userUtterance: question,
+        };
+        const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
+        const mlResponse = await axios.post(mlEndpoint, requestData);
+        // eslint-disable-next-line operator-linebreak, object-curly-newline
+        const { altIntent1, altIntent2, chatType, predictedResponse, places } =
+          mlResponse.data;
+
+        const chat = await createChatbyGroup(
+          question,
+          predictedResponse,
+          chatType,
+          groupId,
+          userId,
         );
+
+        // Emit the created chat data back to the client
+        socket.emit('chatCreated', {
+          data: chat,
+          altIntent1,
+          altIntent2,
+          places,
+          status: true,
+        });
+      } catch (err) {
+        socket.emit('chatCreationError', { message: err.message });
       }
-    } catch (err) {
-      socket.emit('groupChatCreationError', { message: err.message });
-    }
-  });
-
-  socket.on('createChatByGroup', isAuthenticated, async (data) => {
-    try {
-      const { question, userId, groupId } = data;
-
-      if (!question || !groupId) {
-        throw new Error('You must provide a complete attribute');
-      }
-
-      const requestData = {
-        userUtterance: question,
-      };
-      const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
-      const mlResponse = await axios.post(mlEndpoint, requestData);
-      // eslint-disable-next-line operator-linebreak, object-curly-newline
-      const { altIntent1, altIntent2, chatType, predictedResponse, places } =
-        mlResponse.data;
-
-      const chat = await createChatbyGroup(
-        question,
-        predictedResponse,
-        chatType,
-        groupId,
-        userId,
-      );
-
-      // Emit the created chat data back to the client
-      socket.broadcast.emit('chatCreated', {
-        data: chat,
-        altIntent1,
-        altIntent2,
-        places,
-        status: true,
-      });
-    } catch (err) {
-      socket.emit('chatCreationError', { message: err.message });
-    }
-  });
-  socket.on('bookmarkChat', isAuthenticated, async (data) => {
+    },
+  );
+  socket.on('bookmarkChat', requireAuthenticatedWebSocket, async (data) => {
     try {
       const { chatId } = data;
       const isBookmarked = await checkIfUserAlreadyBookmarkedAChat(chatId);
@@ -271,7 +288,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('deleteChat', isAuthenticated, async (data) => {
+  socket.on('deleteChat', requireAuthenticatedWebSocket, async (data) => {
     try {
       const { chatId } = data;
       const chatDel = await deleteChat(chatId);
@@ -285,7 +302,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('deleteGroupChat', isAuthenticated, async (data) => {
+  socket.on('deleteGroupChat', requireAuthenticatedWebSocket, async (data) => {
     try {
       const { groupId } = data;
       await deleteGroupChat(groupId);

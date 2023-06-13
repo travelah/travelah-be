@@ -41,8 +41,8 @@ function isAuthenticated(req, res, next) {
   return next();
 }
 
-function requireAuthenticatedWebSocket(req, res, next) {
-  const { token } = req.query;
+function requireAuthenticatedWebSocket(socket, req, res, next) {
+  const { token } = socket.handshake.headers.authorization;
 
   if (!token) {
     return res.status(401).json({ message: 'Token is missing' });
