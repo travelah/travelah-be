@@ -262,6 +262,8 @@ io.on('connection', (socket) => {
         const chat = await createChatbyGroup(
           question,
           predictedResponse,
+          altIntent1,
+          altIntent2,
           chatType,
           groupId,
           userId,
@@ -270,8 +272,6 @@ io.on('connection', (socket) => {
         // Emit the created chat data back to the client
         socket.emit('chatCreated', {
           data: chat,
-          altIntent1,
-          altIntent2,
           places,
           status: true,
         });

@@ -86,6 +86,8 @@ function createGroupChat(userId) {
 function createChatbyGroup(
   question,
   predictedResponse,
+  altIntent1,
+  altIntent2,
   chatType,
   groupId,
   userId,
@@ -94,6 +96,8 @@ function createChatbyGroup(
     data: {
       question,
       response: predictedResponse,
+      altIntent1,
+      altIntent2,
       chatType,
       groupChat: {
         connect: {
