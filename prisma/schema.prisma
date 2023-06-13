@@ -96,6 +96,8 @@ model Chat {
   groupChat     GroupChat     @relation("chatGroups", fields: [groupChatId], references: [id], onDelete: Cascade)
   question    String      @db.Text
   response			String    @db.Text
+  altIntent1   String?    @db.Text
+  altIntent2   String?    @db.Text
   userId      Int
   user        User      @relation("UserChats",fields: [userId], references: [id], onDelete: Cascade)
   chatType    Int

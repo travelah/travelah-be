@@ -48,26 +48,22 @@ function isAuthenticated(req, res, next) {
   return next();
 }
 
-function requireAuthenticatedWebSocket(socket, next) {
-  const { token } = socket.handshake.headers.authorization;
-
+function requireAuthenticatedWebSocket(token) {
   if (!token) {
-    return next(new Error('Token is missing'));
+    throw new Error('Token is missing');
   }
 
   try {
     const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     // eslint-disable-next-line no-param-reassign
-    socket.user = payload;
 
     const { userId } = payload;
     // eslint-disable-next-line no-param-reassign
-    socket.userId = userId;
-    next();
+    const userIdRetrieved = userId;
+    return userIdRetrieved;
   } catch (err) {
-    next(new Error('Un-Authorized'));
+    throw new Error('Un-Authorized');
   }
-  return null;
 }
 
 io.use((socket, next) => {

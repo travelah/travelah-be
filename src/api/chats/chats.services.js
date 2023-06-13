@@ -56,7 +56,7 @@ async function getAllChatFromGroupChat(groupId, page, take) {
       id: 'asc',
     },
     where: {
-      groupId,
+      groupChatId: groupId,
     },
     include: {
       user: {

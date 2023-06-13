@@ -121,11 +121,15 @@ io.on('connection', (socket) => {
   // });
 
   // Handle different events
-  socket.on(
-    'createGroupChat',
-    requireAuthenticatedWebSocket,
-    async (userId, data) => {
-      try {
+  socket.on('createGroupChat', async (data) => {
+    try {
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+      const { token } = data;
+
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
         const group = await createGroupChat(userId);
 
         // Emit the created group chat data back to the client
@@ -134,19 +138,23 @@ io.on('connection', (socket) => {
           message: 'New Group Chat has been created',
           status: true,
         });
-      } catch (err) {
-        socket.emit('groupChatCreationError', { message: err.message });
+      } else {
+        socket.emit('groupChatCreationError', { message: 'Unauthorized' });
       }
-    },
-  );
+    } catch (err) {
+      socket.emit('groupChatCreationError', { message: err.message });
+    }
+  });
 
-  socket.on(
-    'getGroupChat',
-    requireAuthenticatedWebSocket,
-    async (userId, data) => {
-      try {
-        let { page, take } = data;
-
+  socket.on('getGroupChat', async (data) => {
+    try {
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+      const { token } = data;
+      let { page, take } = data;
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
         if (!page) {
           page = 1;
         } else {
@@ -178,20 +186,25 @@ io.on('connection', (socket) => {
             status: true,
           });
         }
-      } catch (err) {
-        socket.emit('groupChatCreationError', { message: err.message });
+      } else {
+        socket.emit('errorRetrievingGroupChat', { message: 'Unauthorized' });
       }
-    },
-  );
+    } catch (err) {
+      socket.emit('errorRetrievingGroupChat', { message: err.message });
+    }
+  });
 
-  socket.on(
-    'getAllChatFromGroupChat',
-    requireAuthenticatedWebSocket,
-    async (data) => {
-      // const bearerToken = socket.handshake.headers.authorization;
-      try {
-        let { page, take } = data;
+  socket.on('getAllChatFromGroupChat', async (data) => {
+    // const bearerToken = socket.handshake.headers.authorization;
+    try {
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+      const { token } = data;
+      let { page, take } = data;
 
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
         if (!page) {
           page = 1;
         } else {
@@ -216,19 +229,23 @@ io.on('connection', (socket) => {
             'You must provide a complete attribute including groupId',
           );
         }
-      } catch (err) {
-        socket.emit('groupChatCreationError', { message: err.message });
+      } else {
+        socket.emit('errorRetrievingChats', { message: 'Unauthorized' });
       }
-    },
-  );
+    } catch (err) {
+      socket.emit('errorRetrievingChats', { message: err.message });
+    }
+  });
 
-  socket.on(
-    'createChatByGroup',
-    requireAuthenticatedWebSocket,
-    async (userId, data) => {
-      try {
-        const { question, groupId } = data;
-
+  socket.on('createChatByGroup', async (data) => {
+    try {
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+      // eslint-disable-next-line operator-linebreak, object-curly-newline
+      const { question, groupId, page, take, token } = data;
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
         if (!question || !groupId) {
           throw new Error('You must provide a complete attribute');
         }
@@ -258,58 +275,93 @@ io.on('connection', (socket) => {
           places,
           status: true,
         });
-      } catch (err) {
-        socket.emit('chatCreationError', { message: err.message });
-      }
-    },
-  );
-  socket.on('bookmarkChat', requireAuthenticatedWebSocket, async (data) => {
-    try {
-      const { chatId } = data;
-      const isBookmarked = await checkIfUserAlreadyBookmarkedAChat(chatId);
 
-      if (isBookmarked === null) {
-        const bookmarkedChat = await bookmarkChat(chatId);
-        socket.emit('bookmarkedChat', {
-          data: bookmarkedChat,
-          message: `Chat with id ${chatId} has been bookmarked`,
+        const group = await getAllChatFromGroupChat(groupId, page, take);
+
+        socket.emit('chatRetrieved', {
+          data: group,
+          message: `All chat from Group with group id ${data.groupId} has been retrieved`,
           status: true,
         });
       } else {
-        const unbookmarkedChat = await unbookmarkChat(chatId);
-        socket.emit('unbookmarkedChat', {
-          data: unbookmarkedChat,
-          message: `Chat with id ${chatId} has been unbookmarked`,
-          status: true,
-        });
+        socket.emit('chatCreationError', { message: 'Unauthorized' });
+      }
+    } catch (err) {
+      socket.emit('chatCreationError', { message: err.message });
+    }
+  });
+  socket.on('bookmarkChat', async (data) => {
+    try {
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+
+      const { chatId, token } = data;
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
+        const isBookmarked = await checkIfUserAlreadyBookmarkedAChat(chatId);
+
+        if (isBookmarked === null) {
+          const bookmarkedChat = await bookmarkChat(chatId);
+          socket.emit('bookmarkedChat', {
+            data: bookmarkedChat,
+            message: `Chat with id ${chatId} has been bookmarked`,
+            status: true,
+          });
+        } else {
+          const unbookmarkedChat = await unbookmarkChat(chatId);
+          socket.emit('unbookmarkedChat', {
+            data: unbookmarkedChat,
+            message: `Chat with id ${chatId} has been unbookmarked`,
+            status: true,
+          });
+        }
+      } else {
+        socket.emit('deletingError', { message: 'Unauthorized' });
       }
     } catch (err) {
       socket.emit('bookmarkingError', { message: err.message });
     }
   });
 
-  socket.on('deleteChat', requireAuthenticatedWebSocket, async (data) => {
+  socket.on('deleteChat', async (data) => {
     try {
-      const { chatId } = data;
-      const chatDel = await deleteChat(chatId);
-      socket.emit('deletedChat', {
-        data: chatDel,
-        message: `Chat with id ${chatId} has been deleted`,
-        status: true,
-      });
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+      const { chatId, token } = data;
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
+        const chatDel = await deleteChat(chatId);
+        socket.emit('deletedChat', {
+          data: chatDel,
+          message: `Chat with id ${chatId} has been deleted`,
+          status: true,
+        });
+      } else {
+        socket.emit('deletingError', { message: 'Unauthorized' });
+      }
     } catch (err) {
       socket.emit('deletingError', { message: err.message });
     }
   });
 
-  socket.on('deleteGroupChat', requireAuthenticatedWebSocket, async (data) => {
+  socket.on('deleteGroupChat', async (data) => {
     try {
-      const { groupId } = data;
-      await deleteGroupChat(groupId);
-      socket.emit('deletedGroupChat', {
-        message: `Group Chat with id ${groupId} has been deleted`,
-        status: true,
-      });
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+      const { groupId, token } = data;
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
+        await deleteGroupChat(groupId);
+        socket.emit('deletedGroupChat', {
+          message: `Group Chat with id ${groupId} has been deleted`,
+          status: true,
+        });
+      } else {
+        socket.emit('deletingError', { message: 'Unauthorized' });
+      }
     } catch (err) {
       socket.emit('deletingError', { message: err.message });
     }
