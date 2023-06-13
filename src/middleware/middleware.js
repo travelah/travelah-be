@@ -62,6 +62,9 @@ function requireAuthenticatedWebSocket(token) {
     const userIdRetrieved = userId;
     return userIdRetrieved;
   } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      throw new Error(err.name);
+    }
     throw new Error('Un-Authorized');
   }
 }
