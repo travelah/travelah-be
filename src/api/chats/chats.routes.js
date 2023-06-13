@@ -114,11 +114,11 @@ router.get('/group/:groupId', isAuthenticated, async (req, res, next) => {
 });
 io.on('connection', (socket) => {
   console.log('New WebSocket connection');
-  socket.on('connect', (token) => {
-    if (!isAuthenticated) {
-      socket.disconnect();
-    }
-  });
+  // socket.on('connect', (token) => {
+  //   if (!isAuthenticated) {
+  //     socket.disconnect();
+  //   }
+  // });
 
   // Handle different events
   socket.on(

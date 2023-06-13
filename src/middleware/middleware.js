@@ -1,4 +1,11 @@
 const jwt = require('jsonwebtoken');
+const socketIO = require('socket.io');
+const express = require('express');
+
+const router = express.Router();
+const httpServer = require('http').createServer(router);
+
+const io = socketIO(httpServer);
 
 function notFound(req, res, next) {
   res.status(404);
@@ -41,26 +48,31 @@ function isAuthenticated(req, res, next) {
   return next();
 }
 
-function requireAuthenticatedWebSocket(socket, req, res, next) {
+function requireAuthenticatedWebSocket(socket, next) {
   const { token } = socket.handshake.headers.authorization;
 
   if (!token) {
-    return res.status(401).json({ message: 'Token is missing' });
+    return next(new Error('Token is missing'));
   }
 
   try {
     const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    req.payload = payload;
+    // eslint-disable-next-line no-param-reassign
+    socket.user = payload;
 
     const { userId } = payload;
-    req.userId = userId;
+    // eslint-disable-next-line no-param-reassign
+    socket.userId = userId;
     next();
   } catch (err) {
-    res.status(401).json({ message: 'Un-Authorized' });
+    next(new Error('Un-Authorized'));
   }
-  return next();
+  return null;
 }
 
+io.use((socket, next) => {
+  requireAuthenticatedWebSocket(socket, next);
+});
 module.exports = {
   notFound,
   errorHandler,
