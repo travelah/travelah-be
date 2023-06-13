@@ -243,7 +243,8 @@ io.on('connection', (socket) => {
         throw new Error('Token is missing');
       }
       // eslint-disable-next-line operator-linebreak, object-curly-newline
-      const { question, groupId, page, take, token } = data;
+      const { question, groupId, token } = data;
+      let { page, take } = data;
       const userId = await requireAuthenticatedWebSocket(token);
       if (userId) {
         if (!question || !groupId) {
@@ -275,7 +276,17 @@ io.on('connection', (socket) => {
           places,
           status: true,
         });
+        if (!page) {
+          page = 1;
+        } else {
+          page = parseInt(page, 10);
+        }
 
+        if (!take) {
+          take = 5;
+        } else {
+          take = parseInt(take, 10);
+        }
         const group = await getAllChatFromGroupChat(groupId, page, take);
 
         socket.emit('chatRetrieved', {
