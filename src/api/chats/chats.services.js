@@ -48,6 +48,27 @@ async function getAllGroup(page, take, userId) {
   });
 }
 
+async function getAllChatFromGroupChat(groupId, page, take) {
+  return db.chat.findMany({
+    skip: take * (page - 1),
+    take,
+    orderBy: {
+      id: 'asc',
+    },
+    where: {
+      groupId,
+    },
+    include: {
+      user: {
+        select: {
+          profilePicPath: true,
+          profilePicName: true,
+        },
+      },
+    },
+  });
+}
+
 function createGroupChat(userId) {
   return db.groupChat.create({
     data: {
@@ -62,7 +83,13 @@ function createGroupChat(userId) {
     },
   });
 }
-function createChatbyGroup(question, predictedResponse, chatType, groupId, userId) {
+function createChatbyGroup(
+  question,
+  predictedResponse,
+  chatType,
+  groupId,
+  userId,
+) {
   return db.chat.create({
     data: {
       question,
@@ -163,4 +190,5 @@ module.exports = {
   bookmarkChat,
   unbookmarkChat,
   checkIfUserAlreadyBookmarkedAChat,
+  getAllChatFromGroupChat,
 };

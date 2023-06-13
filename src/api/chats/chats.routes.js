@@ -17,6 +17,7 @@ const {
   bookmarkChat,
   unbookmarkChat,
   checkIfUserAlreadyBookmarkedAChat,
+  getAllChatFromGroupChat,
 } = require('./chats.services');
 const {
   isAuthenticated,
@@ -169,6 +170,39 @@ io.on('connection', (socket) => {
             'Your Group Chat with also the latest chat has been retrieved',
           status: true,
         });
+      }
+    } catch (err) {
+      socket.emit('groupChatCreationError', { message: err.message });
+    }
+  });
+
+  socket.on('getAllChatFromGroupChat', isAuthenticated, async (data) => {
+    try {
+      let { page, take } = data;
+
+      if (!page) {
+        page = 1;
+      } else {
+        page = parseInt(page, 10);
+      }
+
+      if (!take) {
+        take = 5;
+      } else {
+        take = parseInt(take, 10);
+      }
+
+      if (data.groupId) {
+        const group = await getAllChatFromGroupChat(data.groupId, page, take);
+        socket.broadcast.emit('chatRetrieved', {
+          data: group,
+          message: `All Chat from Group with Group id ${data.groupId} has been retrieved`,
+          status: true,
+        });
+      } else {
+        throw new Error(
+          'You must provide a complete attribute including groupId',
+        );
       }
     } catch (err) {
       socket.emit('groupChatCreationError', { message: err.message });
