@@ -277,7 +277,8 @@ io.on('connection', (socket) => {
         throw new Error('Token is missing');
       }
       // eslint-disable-next-line operator-linebreak, object-curly-newline
-      let { question, groupId, token, followUpQuestion } = data;
+      let { groupId } = data;
+      const { question, token, followUpQuestion } = data;
       const userId = await requireAuthenticatedWebSocket(token);
       if (userId) {
         if (!question || (!groupId && groupId !== 0)) {
