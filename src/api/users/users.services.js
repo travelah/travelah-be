@@ -11,13 +11,15 @@ function findUserByEmail(email) {
 }
 
 async function updateProfile(user, userId, destinationPath, photoOriginalName) {
-  return db.user.update({
-    data: {
-      ...user,
-      profilePicPath: `https://storage.googleapis.com/${bucketName}/${destinationPath}`,
-      profilePicName: photoOriginalName,
-    },
+  const updatedData = { ...user };
 
+  if (destinationPath && photoOriginalName) {
+    updatedData.profilePicPath = `https://storage.googleapis.com/${bucketName}/${destinationPath}`;
+    updatedData.profilePicName = photoOriginalName;
+  }
+
+  return db.user.update({
+    data: updatedData,
     where: {
       id: userId,
     },

@@ -26,6 +26,7 @@ model User {
   aboutMe       String?         @db.Text
   age           Int?
   occupation    String?
+  location    String?
   profilePicPath String?
   profilePicName String?
   refreshTokens RefreshToken[] @relation("UserRefreshToken")

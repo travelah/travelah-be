@@ -20,7 +20,7 @@ router.get('/profile', isAuthenticated, async (req, res, next) => {
   }
 });
 
-router.post(
+router.put(
   '/profile',
   isAuthenticated,
   upload.single('photo'),
@@ -30,10 +30,30 @@ router.post(
       const user = await findUserById(userId);
       if (!user) {
         res.status(400);
-        throw new Error('You are not found as a user');
+        throw new Error('User not found');
       }
-      let updatedProfile;
 
+      const updatedProfile = { ...user }; // Start with the existing user profile
+
+      const {
+        aboutMe, age, occupation, location, fullName,
+      } = req.body;
+
+      if (aboutMe) {
+        updatedProfile.aboutMe = aboutMe;
+      }
+      if (age) {
+        updatedProfile.age = parseInt(age, 10);
+      }
+      if (occupation) {
+        updatedProfile.occupation = occupation;
+      }
+      if (location) {
+        updatedProfile.location = location;
+      }
+      if (fullName) {
+        updatedProfile.fullName = fullName;
+      }
       if (req.file != null) {
         const timestamp = new Date().getTime();
         const photo = req.file;
@@ -41,29 +61,28 @@ router.post(
           res.status(400).json({ error: 'No photo provided' });
           return;
         }
-        console.log('masuk pak');
-        // Process the photo and save it to Google Cloud Storage
-        const destinationPath = 'public/images'; // Specify the desired folder name
-        console.log(req.body);
-        await uploadToStorage(photo, destinationPath, timestamp);
 
-        updatedProfile = await updateProfile(
-          req.body,
+        const destinationPath = 'public/images';
+        await uploadToStorage(photo, destinationPath, timestamp);
+        const updatedUser = await updateProfile(
+          updatedProfile,
           userId,
           destinationPath,
           `${timestamp}-${photo.originalname}`,
         );
-
         res.status(200).json({
-          data: updatedProfile,
-          message: 'Success retrieve your profile',
+          data: updatedUser,
+          message: 'Profile updated successfully',
           status: true,
         });
       } else {
-        updatedProfile = await updateProfile(req.body, userId);
+        const updatedUser = await updateProfile(
+          updatedProfile,
+          userId,
+        );
         res.status(200).json({
-          data: updatedProfile,
-          message: 'Success retrieve your profile',
+          data: updatedUser,
+          message: 'Profile updated successfully',
           status: true,
         });
       }
