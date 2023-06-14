@@ -107,6 +107,7 @@ function createChatbyGroup(
   predictedResponse,
   altIntent1,
   altIntent2,
+  places,
   chatType,
   groupId,
   userId,
@@ -117,6 +118,7 @@ function createChatbyGroup(
       response: predictedResponse,
       altIntent1,
       altIntent2,
+      places,
       chatType,
       groupChat: {
         connect: {
