@@ -277,11 +277,15 @@ io.on('connection', (socket) => {
         throw new Error('Token is missing');
       }
       // eslint-disable-next-line operator-linebreak, object-curly-newline
-      const { question, groupId, token } = data;
+      let { question, groupId, token } = data;
       const userId = await requireAuthenticatedWebSocket(token);
       if (userId) {
         if (!question || !groupId) {
           throw new Error('You must provide a complete attribute');
+        }
+        if (groupId === 0) {
+          const newGroup = await createGroupChat(userId);
+          groupId = newGroup.id;
         }
 
         const requestData = {
