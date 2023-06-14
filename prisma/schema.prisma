@@ -99,6 +99,7 @@ model Chat {
   response			String    @db.Text
   altIntent1   String?    @db.Text
   altIntent2   String?    @db.Text
+  followUpQuestion   String?    @db.Text
   places       Json?
   userId      Int
   user        User      @relation("UserChats",fields: [userId], references: [id], onDelete: Cascade)

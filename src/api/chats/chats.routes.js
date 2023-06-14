@@ -205,7 +205,7 @@ io.on('connection', (socket) => {
 
       const userId = await requireAuthenticatedWebSocket(token);
       if (userId) {
-        if (data.groupId) {
+        if (data.groupId || data.groupId === 0) {
           const group = await getAllChatFromGroupChat(data.groupId);
           socket.emit('chatRetrieved', {
             data: group,
@@ -277,10 +277,10 @@ io.on('connection', (socket) => {
         throw new Error('Token is missing');
       }
       // eslint-disable-next-line operator-linebreak, object-curly-newline
-      let { question, groupId, token } = data;
+      let { question, groupId, token, followUpQuestion } = data;
       const userId = await requireAuthenticatedWebSocket(token);
       if (userId) {
-        if (!question || !groupId) {
+        if (!question || (!groupId && groupId !== 0)) {
           throw new Error('You must provide a complete attribute');
         }
         if (groupId === 0) {
@@ -289,7 +289,7 @@ io.on('connection', (socket) => {
         }
 
         const requestData = {
-          userUtterance: question,
+          userUtterance: followUpQuestion ?? question,
         };
         const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
         const mlResponse = await axios.post(mlEndpoint, requestData);
