@@ -107,6 +107,7 @@ function createChatbyGroup(
   predictedResponse,
   altIntent1,
   altIntent2,
+  followUpQuestion,
   places,
   chatType,
   groupId,
@@ -118,6 +119,7 @@ function createChatbyGroup(
       response: predictedResponse,
       altIntent1,
       altIntent2,
+      followUpQuestion,
       places,
       chatType,
       groupChat: {
