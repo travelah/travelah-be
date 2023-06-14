@@ -302,6 +302,7 @@ io.on('connection', (socket) => {
           predictedResponse,
           altIntent1,
           altIntent2,
+          followUpQuestion,
           places,
           chatType,
           groupId,
