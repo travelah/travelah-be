@@ -48,10 +48,29 @@ async function getAllGroup(page, take, userId) {
   });
 }
 
-async function getAllChatFromGroupChat(groupId, page, take) {
+async function getAllChatFromGroupChatWithPaging(groupId, page, take) {
   return db.chat.findMany({
     skip: take * (page - 1),
     take,
+    orderBy: {
+      id: 'asc',
+    },
+    where: {
+      groupChatId: groupId,
+    },
+    include: {
+      user: {
+        select: {
+          profilePicPath: true,
+          profilePicName: true,
+        },
+      },
+    },
+  });
+}
+
+async function getAllChatFromGroupChat(groupId) {
+  return db.chat.findMany({
     orderBy: {
       id: 'asc',
     },
@@ -195,4 +214,5 @@ module.exports = {
   unbookmarkChat,
   checkIfUserAlreadyBookmarkedAChat,
   getAllChatFromGroupChat,
+  getAllChatFromGroupChatWithPaging,
 };

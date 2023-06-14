@@ -18,6 +18,7 @@ const {
   unbookmarkChat,
   checkIfUserAlreadyBookmarkedAChat,
   getAllChatFromGroupChat,
+  getAllChatFromGroupChatWithPaging,
 } = require('./chats.services');
 const {
   isAuthenticated,
@@ -201,6 +202,35 @@ io.on('connection', (socket) => {
         throw new Error('Token is missing');
       }
       const { token } = data;
+
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
+        if (data.groupId) {
+          const group = await getAllChatFromGroupChat(data.groupId);
+          socket.emit('chatRetrieved', {
+            data: group,
+            message: `All Chat from Group with Group id ${data.groupId} has been retrieved`,
+            status: true,
+          });
+        } else {
+          throw new Error(
+            'You must provide a complete attribute including groupId',
+          );
+        }
+      } else {
+        socket.emit('errorRetrievingChats', { message: 'Unauthorized' });
+      }
+    } catch (err) {
+      socket.emit('errorRetrievingChats', { message: err.message });
+    }
+  });
+  socket.on('getAllChatFromGroupChatWithPaging', async (data) => {
+    // const bearerToken = socket.handshake.headers.authorization;
+    try {
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+      const { token } = data;
       let { page, take } = data;
 
       const userId = await requireAuthenticatedWebSocket(token);
@@ -218,7 +248,11 @@ io.on('connection', (socket) => {
         }
 
         if (data.groupId) {
-          const group = await getAllChatFromGroupChat(data.groupId, page, take);
+          const group = await getAllChatFromGroupChatWithPaging(
+            data.groupId,
+            page,
+            take,
+          );
           socket.emit('chatRetrieved', {
             data: group,
             message: `All Chat from Group with Group id ${data.groupId} has been retrieved`,
@@ -238,6 +272,59 @@ io.on('connection', (socket) => {
   });
 
   socket.on('createChatByGroup', async (data) => {
+    try {
+      if (!data.token) {
+        throw new Error('Token is missing');
+      }
+      // eslint-disable-next-line operator-linebreak, object-curly-newline
+      const { question, groupId, token } = data;
+      const userId = await requireAuthenticatedWebSocket(token);
+      if (userId) {
+        if (!question || !groupId) {
+          throw new Error('You must provide a complete attribute');
+        }
+
+        const requestData = {
+          userUtterance: question,
+        };
+        const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
+        const mlResponse = await axios.post(mlEndpoint, requestData);
+        // eslint-disable-next-line operator-linebreak, object-curly-newline
+        const { altIntent1, altIntent2, chatType, predictedResponse, places } =
+          mlResponse.data;
+
+        const chat = await createChatbyGroup(
+          question,
+          predictedResponse,
+          altIntent1,
+          altIntent2,
+          chatType,
+          groupId,
+          userId,
+        );
+
+        // Emit the created chat data back to the client
+        socket.emit('chatCreated', {
+          data: chat,
+          places,
+          status: true,
+        });
+        const group = await getAllChatFromGroupChat(groupId);
+
+        socket.emit('chatRetrieved', {
+          data: group,
+          message: `All chat from Group with group id ${data.groupId} has been retrieved`,
+          status: true,
+        });
+      } else {
+        socket.emit('chatCreationError', { message: 'Unauthorized' });
+      }
+    } catch (err) {
+      socket.emit('chatCreationError', { message: err.message });
+    }
+  });
+
+  socket.on('createChatByGroupWithPaging', async (data) => {
     try {
       if (!data.token) {
         throw new Error('Token is missing');
@@ -287,7 +374,11 @@ io.on('connection', (socket) => {
         } else {
           take = parseInt(take, 10);
         }
-        const group = await getAllChatFromGroupChat(groupId, page, take);
+        const group = await getAllChatFromGroupChatWithPaging(
+          groupId,
+          page,
+          take,
+        );
 
         socket.emit('chatRetrieved', {
           data: group,
