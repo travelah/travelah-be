@@ -38,5 +38,6 @@ steps:
       - 'us-central1'
       - '--platform'
       - 'managed'
+      - '--allow-unauthenticated'
 images:
   - 'gcr.io/$PROJECT_ID/travelah:$COMMIT_SHA'
