@@ -258,24 +258,42 @@ router.delete('/:postId', isAuthenticated, async (req, res, next) => {
     next(err);
   }
 });
-router.patch('/:postId', isAuthenticated, async (req, res, next) => {
-  try {
-    const postId = parseInt(req.params.postId, 10);
-    const { userId } = req;
-    const post = await getSinglePost(postId, userId);
-    if (!post || post.userId !== userId) {
-      throw new Error('You are not authorized to update this post.');
-    }
-    const data = req.body;
-    const postNew = await updatePost(userId, postId, data);
+router.patch(
+  '/:postId',
+  isAuthenticated,
+  upload.single('photo'),
+  async (req, res, next) => {
+    try {
+      const postId = parseInt(req.params.postId, 10);
+      const { userId } = req;
+      const post = await getSinglePost(postId, userId);
+      if (!post || post.userId !== userId) {
+        throw new Error('You are not authorized to update this post.');
+      }
+      const data = req.body;
 
-    res.status(200).json({
-      data: postNew,
-      message: `Post with id ${postId} has been updated`,
-      status: true,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
+      // Check if photo is uploaded and update the post's photo field accordingly
+      if (req.file) {
+        const photo = req.file;
+        const timestamp = new Date().getTime();
+        const destinationPath = 'public/images'; // Specify the desired folder name
+        await uploadToStorage(photo, destinationPath, timestamp);
+
+        // Update the post's photo field with the new photo information
+        data.photoPath = destinationPath;
+        data.photoFilename = `${timestamp}-${photo.originalname}`;
+      }
+
+      const postNew = await updatePost(userId, postId, data);
+
+      res.status(200).json({
+        data: postNew,
+        message: `Post with id ${postId} has been updated`,
+        status: true,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 module.exports = router;
