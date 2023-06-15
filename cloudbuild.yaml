@@ -39,9 +39,9 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-      - '--port'
-      - '8080'
-      - '--port'
-      - '3001'
+      # - '--port'
+      # - '8080'
+      # - '--port'
+      # - '3001'
 images:
   - 'gcr.io/$PROJECT_ID/travelah:$COMMIT_SHA'
