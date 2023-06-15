@@ -124,6 +124,7 @@ io.on('connection', (socket) => {
   socket.on('createGroupChat', async (data) => {
     try {
       if (!data.token) {
+        socket.emit('groupChatCreationError', { message: 'Token is missing' });
         throw new Error('Token is missing');
       }
       const { token } = data;
@@ -149,6 +150,9 @@ io.on('connection', (socket) => {
   socket.on('getGroupChat', async (data) => {
     try {
       if (!data.token) {
+        socket.emit('errorRetrievingGroupChat', {
+          message: 'Token is missing',
+        });
         throw new Error('Token is missing');
       }
       const { token } = data;
@@ -198,6 +202,7 @@ io.on('connection', (socket) => {
     // const bearerToken = socket.handshake.headers.authorization;
     try {
       if (!data.token) {
+        socket.emit('errorRetrievingChats', { message: 'Token is missing' });
         throw new Error('Token is missing');
       }
       const { token } = data;
@@ -227,8 +232,10 @@ io.on('connection', (socket) => {
     // const bearerToken = socket.handshake.headers.authorization;
     try {
       if (!data.token) {
+        socket.emit('errorRetrievingChats', { message: 'Token is missing' });
         throw new Error('Token is missing');
       }
+
       const { token } = data;
       let { page, take } = data;
 
@@ -273,6 +280,7 @@ io.on('connection', (socket) => {
   socket.on('createChatByGroup', async (data) => {
     try {
       if (!data.token) {
+        socket.emit('chatCreationError', { message: 'Token is missing' });
         throw new Error('Token is missing');
       }
       // eslint-disable-next-line operator-linebreak, object-curly-newline
@@ -333,6 +341,7 @@ io.on('connection', (socket) => {
   socket.on('createChatByGroupWithPaging', async (data) => {
     try {
       if (!data.token) {
+        socket.emit('chatCreationError', { message: 'Token is missing' });
         throw new Error('Token is missing');
       }
       // eslint-disable-next-line operator-linebreak, object-curly-newline
@@ -402,6 +411,7 @@ io.on('connection', (socket) => {
   socket.on('bookmarkChat', async (data) => {
     try {
       if (!data.token) {
+        socket.emit('bookmarkingError', { message: 'Token is missing' });
         throw new Error('Token is missing');
       }
 
@@ -426,7 +436,7 @@ io.on('connection', (socket) => {
           });
         }
       } else {
-        socket.emit('deletingError', { message: 'Unauthorized' });
+        socket.emit('bookmarkingError', { message: 'Unauthorized' });
       }
     } catch (err) {
       socket.emit('bookmarkingError', { message: err.message });
@@ -436,6 +446,7 @@ io.on('connection', (socket) => {
   socket.on('deleteChat', async (data) => {
     try {
       if (!data.token) {
+        socket.emit('deletingError', { message: 'Token is missing' });
         throw new Error('Token is missing');
       }
       const { chatId, token } = data;
@@ -458,6 +469,7 @@ io.on('connection', (socket) => {
   socket.on('deleteGroupChat', async (data) => {
     try {
       if (!data.token) {
+        socket.emit('deletingError', { message: 'Token is missing' });
         throw new Error('Token is missing');
       }
       const { groupId, token } = data;
