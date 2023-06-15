@@ -21,7 +21,7 @@ ENV NODE_ENV production
 # FROM dependencies as builder
 # RUN npm run build
 EXPOSE 8080 
-EXPOSE 3000
+EXPOSE 3001
 
 # start command
 CMD ["npm", "run", "start:prod"]
