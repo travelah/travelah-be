@@ -39,5 +39,7 @@ steps:
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
+      - '--port'
+      - '3000'
 images:
   - 'gcr.io/$PROJECT_ID/travelah:$COMMIT_SHA'
