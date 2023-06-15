@@ -547,7 +547,7 @@ async function deletePost(postId) {
     },
   });
 }
-async function updatePost(iduser, postId, data) {
+async function updatePost(postId, data) {
   const post = await db.post.findUnique({
     where: {
       id: postId,
@@ -557,30 +557,14 @@ async function updatePost(iduser, postId, data) {
   if (!post) {
     throw new Error('Post not found!');
   }
-  if (data.latitude && data.longitude) {
-    const location = await getLocationName(data.latitude, data.longitude);
-    return db.post.update({
-      where: {
-        id: postId,
-      },
-      data: {
-        ...data,
-        location,
-      },
-    });
-  }
-
-  if (!data.latitude && !data.longitude) {
-    return db.post.update({
-      where: {
-        id: postId,
-      },
-      data: {
-        ...data,
-      },
-    });
-  }
-  return null;
+  return db.post.update({
+    where: {
+      id: postId,
+    },
+    data: {
+      ...data,
+    },
+  });
 }
 
 module.exports = {

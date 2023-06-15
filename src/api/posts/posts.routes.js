@@ -280,12 +280,10 @@ router.patch(
         await uploadToStorage(photo, destinationPath, timestamp);
 
         // Update the post's photo field with the new photo information
-        data.photoPath = destinationPath;
-        data.photoFilename = `${timestamp}-${photo.originalname}`;
+        data.postPhotoPath = destinationPath;
+        data.postPhotoName = `${timestamp}-${photo.originalname}`;
       }
-
-      const postNew = await updatePost(userId, postId, data);
-
+      const postNew = await updatePost(postId, data);
       res.status(200).json({
         data: postNew,
         message: `Post with id ${postId} has been updated`,
