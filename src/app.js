@@ -3,6 +3,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 const cors = require('cors');
+const http = require('http'); // Import the http module
 
 const dotenv = require('dotenv');
 
@@ -18,6 +19,7 @@ const middlewares = require('./middleware/middleware');
 const api = require('./api');
 
 const app = express();
+const httpServer = http.createServer(app); // Create an HTTP server
 
 app.use(morgan('dev'));
 app.use(helmet());
@@ -29,4 +31,4 @@ app.use('/api/v1', api);
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
 
-module.exports = app;
+module.exports = httpServer;
