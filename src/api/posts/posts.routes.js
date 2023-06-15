@@ -270,8 +270,9 @@ router.patch(
       if (!post || post.userId !== userId) {
         throw new Error('You are not authorized to update this post.');
       }
+
       // eslint-disable-next-line prefer-const
-      let data = req.body;
+      let data = { ...req.body }; // Copy the existing properties from req.body
 
       // Check if photo is uploaded and update the post's photo field accordingly
       if (req.file) {
@@ -284,6 +285,7 @@ router.patch(
         data.postPhotoPath = destinationPath;
         data.postPhotoName = `${timestamp}-${photo.originalname}`;
       }
+
       const postNew = await updatePost(postId, data);
       res.status(200).json({
         data: postNew,
@@ -295,4 +297,5 @@ router.patch(
     }
   },
 );
+
 module.exports = router;
