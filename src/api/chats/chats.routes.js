@@ -1,11 +1,13 @@
 const express = require('express');
 const socketIO = require('socket.io');
 const cors = require('cors');
-
-const app = express();
-const router = express.Router();
-const httpServer = require('http').createServer(router);
+// eslint-disable-next-line import/order
 const axios = require('axios');
+// const httpServer = require('http').createServer(router);
+const router = require('../index');
+
+const app = require('../../app');
+
 const {
   getChat,
   getGroupChat,
@@ -25,7 +27,7 @@ const {
   requireAuthenticatedWebSocket,
 } = require('../../middleware/middleware');
 
-const io = socketIO(httpServer);
+const io = socketIO(app);
 
 // Enable CORS
 // const corsOptions = {
@@ -477,14 +479,7 @@ io.on('connection', (socket) => {
     }
   });
 });
-
-const PORT = 3001;
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 module.exports = router;
-
 // const router = express.Router();
 // //get GroupChatbyId
 // router.get('/group/:groupId', isAuthenticated, async (req, res, next) => {
