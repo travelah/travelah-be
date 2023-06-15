@@ -1,13 +1,10 @@
 const express = require('express');
 const socketIO = require('socket.io');
-const cors = require('cors');
 const axios = require('axios');
-const httpServer = require('../../app');
+const httpServer = require('../../index');
 
 const router = express.Router();
 
-// eslint-disable-next-line import/order
-const httpServer2 = require('http').createServer(router);
 const {
   getChat,
   getGroupChat,
@@ -27,7 +24,7 @@ const {
   requireAuthenticatedWebSocket,
 } = require('../../middleware/middleware');
 
-const io = socketIO(httpServer2);
+const io = socketIO(httpServer);
 
 // Enable CORS
 // const corsOptions = {
@@ -479,10 +476,10 @@ io.on('connection', (socket) => {
     }
   });
 });
-const port = 3001;
-httpServer2.listen(port, () => {
-  console.log('connected to server');
-});
+// const port = 3001;
+// httpServer2.listen(port, () => {
+//   console.log('connected to server');
+// });
 
 module.exports = router;
 // const router = express.Router();

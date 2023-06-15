@@ -21,6 +21,7 @@ async function getSinglePost(postId, userId) {
             select: {
               fullName: true,
               profilePicPath: true,
+              profilePicName: true,
             },
           },
         },
