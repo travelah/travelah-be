@@ -4,7 +4,7 @@ const cors = require('cors');
 // eslint-disable-next-line import/order
 const axios = require('axios');
 // const httpServer = require('http').createServer(router);
-const router = require('../index');
+const router = express.Router();
 
 const app = require('../../app');
 
