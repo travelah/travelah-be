@@ -270,7 +270,8 @@ router.patch(
       if (!post || post.userId !== userId) {
         throw new Error('You are not authorized to update this post.');
       }
-      const data = req.body;
+      // eslint-disable-next-line prefer-const
+      let data = req.body;
 
       // Check if photo is uploaded and update the post's photo field accordingly
       if (req.file) {
