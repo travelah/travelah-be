@@ -79,7 +79,6 @@ Status: 200 OK
         }
       ]
     },
-    ...
   ],
   "message": "Your Group Chat with also the latest chat has been retrieved",
   "status": true
@@ -750,3 +749,16 @@ Status: 201 CREATED
 }
 ```
 
+## Socket.io 
+Realtime connection with client `in this term, the client is android.`
+
+Default Url: `"https://travelah-h7wjymk3wa-uc.a.run.app"`
+
+| Event Listener                | Description                                   |
+|-------------------------------|-----------------------------------------------|
+| createGroupChat               | Create new group chat                         |
+| getGroupChat                  | Get one spesific groupChat by groupId         |
+| getAllChatFromGroupChat       | Get all chat from spesific groupChat          |
+| createChatByGroup             | Create new chat from spesific groupChat       |
+| deleteChat                    | Delete spesific chat                          |
+| deleteGroupChat               | Delete groupChat                              |
