@@ -28,7 +28,7 @@ function getGroupChat(groupId, page, take) {
   });
 }
 async function getAllGroup(page, take, userId) {
-  return db.groupChat.findMany({
+  const groups = await db.groupChat.findMany({
     skip: take * (page - 1),
     take,
     include: {
@@ -43,6 +43,26 @@ async function getAllGroup(page, take, userId) {
       userId,
     },
   });
+
+  // Sort the groups based on the most recent chat within each group
+  const sortedGroups = groups.sort((a, b) => {
+    const lastChatA = a.chats[0];
+    const lastChatB = b.chats[0];
+
+    if (lastChatA && lastChatB) {
+      return lastChatB.createdAt.getTime() - lastChatA.createdAt.getTime();
+    }
+    if (lastChatA) {
+      return -1;
+    }
+    if (lastChatB) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return sortedGroups;
 }
 
 async function getAllChatFromGroupChatWithPaging(groupId, page, take) {
