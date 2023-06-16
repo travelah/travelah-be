@@ -50,7 +50,7 @@ async function getAllGroup(page, take, userId) {
     const lastChatB = b.chats[0];
 
     if (lastChatA && lastChatB) {
-      return lastChatB.createdAt.getTime() - lastChatA.createdAt.getTime();
+      return new Date(lastChatB.createdAt) - new Date(lastChatA.createdAt);
     }
     if (lastChatA) {
       return -1;
