@@ -589,4 +589,5 @@ module.exports = {
   unlikePost,
   getMyPost,
   getAllComments,
+  getLocationName,
 };

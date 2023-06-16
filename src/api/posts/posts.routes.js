@@ -12,6 +12,7 @@ const {
   checkIfUserAlreadyLikeAPost,
   getMyPost,
   getAllComments,
+  getLocationName,
 } = require('./posts.services');
 const { isAuthenticated } = require('../../middleware/middleware');
 const { uploadToStorage, upload } = require('../../middleware/multer');
@@ -287,6 +288,13 @@ router.patch(
         data.postPhotoName = `${timestamp}-${photo.originalname}`;
       }
 
+      // Check if latitude and longitude are provided, then update location
+      if (data.latitude && data.longitude) {
+        data.location = await getLocationName(
+          Number(data.latitude),
+          Number(data.longitude),
+        );
+      }
       const postNew = await updatePost(postId, data);
       res.status(200).json({
         data: postNew,
