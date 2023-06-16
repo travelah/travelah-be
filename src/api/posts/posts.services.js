@@ -114,6 +114,7 @@ async function getAllComments(page, take, postId) {
           select: {
             fullName: true,
             profilePicPath: true,
+            profilePicName: true,
           },
         },
       },
@@ -123,7 +124,10 @@ async function getAllComments(page, take, postId) {
       const mappedComments = comments.map((comment) => ({
         ...comment,
         userFullName: comment.user.fullName,
-        userProfilePicPath: comment.user.profilePicPath,
+
+        userProfilePicPath: comment.user?.profilePicPath
+          ? `${comment.user?.profilePicPath}/${comment.user.profilePicName}`
+          : null,
       }));
 
       // Return the mapped comments
