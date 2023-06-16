@@ -3,7 +3,7 @@
 ![User Api](https://github.com/travelah/travelah-be/blob/main/arch.png?raw=true)
 
 ## Endpoint
-Default url: "/api/v1"
+Default Url: `"https://travelah-h7wjymk3wa-uc.a.run.app/api/v1"`
 
 | Endpoint                      | Method | Description                           |
 |-------------------------------|--------|---------------------------------------|
@@ -46,8 +46,8 @@ Token
 
 **Params**
 
-- page: <number>
-- take: <number>
+- page: `<Number>`
+- take: `<Number>`
 
 **Example Response**
 
@@ -93,9 +93,9 @@ Status: 200 OK
 
 **Params**
 
-- email: <String>
-- password: <String>
-- fullName: <String>
+- email: `<String>`
+- password: `<String>`
+- fullName: `<String>`
 
 **Example Response**
 
@@ -118,8 +118,8 @@ Status: 201 OK
 
 **Params**
 
-- email: <String>
-- password: <String>
+- email: `<String>`
+- password: `<String>`
 
 **Example Response**
 
@@ -146,12 +146,12 @@ Status: 200 OK
 
 **Params**
 
-- fullName: <String>
-- aboutMe: <String>
-- age: <Number>
-- occupation: <String>
-- location: <String>
-- photo: <File>
+- fullName: `<String>`
+- aboutMe: `<String>`
+- age: `<Number>`
+- occupation: `<String>`
+- location: `<String>`
+- photo: `<File>`
 
 **Example Response**
 
@@ -190,11 +190,11 @@ Status: 201 OK
 
 **Params**
 
-- title: <String>
-- description: <String>
-- longitude: <String>
-- latitude: <String>
-- photo: <File>
+- title: `<String>`
+- description: `<String>`
+- longitude: `<String>`
+- latitude: `<String>`
+- photo: `<File>`
 
 **Example Response**
 
@@ -231,11 +231,11 @@ Status: 201 OK
 
 **Params**
 
-- title: <String>
-- description: <String>
-- longitude: <String>
-- latitude: <String>
-- photo: <File>
+- title: `<String>`
+- description: `<String>`
+- longitude: `<String>`
+- latitude: `<String>`
+- photo: `<File>`
 
 **Example Response**
 
@@ -272,8 +272,8 @@ Status: 201 OK
 
 **Params**
 
-- page: <Number>
-- take: <Number>
+- page: `<Number>`
+- take: `<Number>`
 
 **Example Response**
 
@@ -339,7 +339,7 @@ Status: 200 OK
 
 **Params**
 
-- postId: <Number>
+- postId: `<Number>`
 
 **Example Response**
 
@@ -384,7 +384,7 @@ Status: 200 OK
 
 **Params**
 
-- postId: <Number>
+- postId: `<Number>`
 
 **Example Response**
 
@@ -421,7 +421,7 @@ Status: 201 OK
 
 **Params**
 
-- likeType: <String>
+- likeType: `<String>`
 
 **Example Response**
 
@@ -537,7 +537,7 @@ Status: 201 OK
 
 **Params**
 
-- description: <String>
+- description: `<String>`
 
 **Example Response**
 
@@ -593,8 +593,8 @@ Status: 201 OK
 - AUTHORIZATION: Bearer Token `<token>`
 
 **Params**
-- page: <Number>
-- take: <Number>
+- page: `<Number>`
+- take: `<Number>`
 
 **Example Response**
 
@@ -688,8 +688,8 @@ Status: 200 OK
 
 **Params**
 
-- page: <number>
-- take: <number>
+- page: `<Number>`
+- take: `<Number>`
 
 **Example Response**
 
