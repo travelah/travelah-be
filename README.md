@@ -722,9 +722,8 @@ Status: 200 OK
     }
   ],
   "message": "GroupChat with id 1 has been retrieved",
-  "
 
-status": true
+"status": true
 }
 ```
 
