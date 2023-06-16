@@ -5,7 +5,7 @@ const axios = require('axios');
 const auth = require('./auth/auth.routes');
 const users = require('./users/users.routes');
 const posts = require('./posts/posts.routes');
-const chats = require('./chats/chats.routes');
+const chats = require('./chats/chats.routes').router;
 
 const router = express.Router();
 
