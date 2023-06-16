@@ -39,9 +39,6 @@ async function getAllGroup(page, take, userId) {
         take: 1,
       },
     },
-    orderBy: {
-      'chats.createdAt': 'desc',
-    },
     where: {
       userId,
     },
