@@ -14,7 +14,7 @@ async function updateProfile(user, userId, destinationPath, photoOriginalName) {
   const updatedData = { ...user };
 
   if (destinationPath && photoOriginalName) {
-    updatedData.profilePicPath = `https://storage.googleapis.com/${bucketName}/${destinationPath}`;
+    updatedData.profilePicPath = destinationPath;
     updatedData.profilePicName = photoOriginalName;
   }
 

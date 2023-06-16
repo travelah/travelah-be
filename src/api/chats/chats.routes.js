@@ -127,20 +127,22 @@ const getIO = (io) => {
     //     socket.disconnect();
     //   }
     // });
-  
+
     // Handle different events
     socket.on('createGroupChat', async (data) => {
       try {
         if (!data.token) {
-          socket.emit('groupChatCreationError', { message: 'Token is missing' });
+          socket.emit('groupChatCreationError', {
+            message: 'Token is missing',
+          });
           throw new Error('Token is missing');
         }
         const { token } = data;
-  
+
         const userId = await requireAuthenticatedWebSocket(token);
         if (userId) {
           const group = await createGroupChat(userId);
-  
+
           // Emit the created group chat data back to the client
           socket.emit('groupChatCreated', {
             data: group,
@@ -154,7 +156,7 @@ const getIO = (io) => {
         socket.emit('groupChatCreationError', { message: err.message });
       }
     });
-  
+
     socket.on('getGroupChat', async (data) => {
       try {
         if (!data.token) {
@@ -172,13 +174,13 @@ const getIO = (io) => {
           } else {
             page = parseInt(page, 10);
           }
-  
+
           if (!take) {
             take = 5;
           } else {
             take = parseInt(take, 10);
           }
-  
+
           // Determine if the request is for a single group chat or a user-specific group chat
           if (data.groupId) {
             const group = await getGroupChat(data.groupId, page, take);
@@ -205,7 +207,7 @@ const getIO = (io) => {
         socket.emit('errorRetrievingGroupChat', { message: err.message });
       }
     });
-  
+
     socket.on('getAllChatFromGroupChat', async (data) => {
       // const bearerToken = socket.handshake.headers.authorization;
       try {
@@ -214,7 +216,7 @@ const getIO = (io) => {
           throw new Error('Token is missing');
         }
         const { token } = data;
-  
+
         const userId = await requireAuthenticatedWebSocket(token);
         if (userId) {
           if (data.groupId || data.groupId === 0) {
@@ -243,10 +245,10 @@ const getIO = (io) => {
           socket.emit('errorRetrievingChats', { message: 'Token is missing' });
           throw new Error('Token is missing');
         }
-  
+
         const { token } = data;
         let { page, take } = data;
-  
+
         const userId = await requireAuthenticatedWebSocket(token);
         if (userId) {
           if (!page) {
@@ -254,13 +256,13 @@ const getIO = (io) => {
           } else {
             page = parseInt(page, 10);
           }
-  
+
           if (!take) {
             take = 5;
           } else {
             take = parseInt(take, 10);
           }
-  
+
           if (data.groupId) {
             const group = await getAllChatFromGroupChatWithPaging(
               data.groupId,
@@ -284,7 +286,7 @@ const getIO = (io) => {
         socket.emit('errorRetrievingChats', { message: err.message });
       }
     });
-  
+
     socket.on('createChatByGroup', async (data) => {
       try {
         if (!data.token) {
@@ -303,16 +305,21 @@ const getIO = (io) => {
             const newGroup = await createGroupChat(userId);
             groupId = newGroup.id;
           }
-  
+
           const requestData = {
             userUtterance: followUpQuestion ?? question,
           };
           const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
           const mlResponse = await axios.post(mlEndpoint, requestData);
           // eslint-disable-next-line operator-linebreak, object-curly-newline
-          const { altIntent1, altIntent2, chatType, predictedResponse, places } =
-            mlResponse.data;
-  
+          const {
+            altIntent1,
+            altIntent2,
+            chatType,
+            predictedResponse,
+            places,
+          } = mlResponse.data;
+
           const chat = await createChatbyGroup(
             question,
             predictedResponse,
@@ -324,7 +331,7 @@ const getIO = (io) => {
             groupId,
             userId,
           );
-  
+
           // Emit the created chat data back to the client
           socket.emit('chatCreated', {
             data: chat,
@@ -332,7 +339,7 @@ const getIO = (io) => {
             status: true,
           });
           const group = await getAllChatFromGroupChat(groupId);
-  
+
           socket.emit('chatRetrieved', {
             data: group,
             message: `All chat from Group with group id ${data.groupId} has been retrieved`,
@@ -345,7 +352,7 @@ const getIO = (io) => {
         socket.emit('chatCreationError', { message: err.message });
       }
     });
-  
+
     socket.on('createChatByGroupWithPaging', async (data) => {
       try {
         if (!data.token) {
@@ -360,16 +367,21 @@ const getIO = (io) => {
           if (!question || !groupId) {
             throw new Error('You must provide a complete attribute');
           }
-  
+
           const requestData = {
             userUtterance: question,
           };
           const mlEndpoint = 'https://appml-h7wjymk3wa-uc.a.run.app/predict';
           const mlResponse = await axios.post(mlEndpoint, requestData);
           // eslint-disable-next-line operator-linebreak, object-curly-newline
-          const { altIntent1, altIntent2, chatType, predictedResponse, places } =
-            mlResponse.data;
-  
+          const {
+            altIntent1,
+            altIntent2,
+            chatType,
+            predictedResponse,
+            places,
+          } = mlResponse.data;
+
           const chat = await createChatbyGroup(
             question,
             predictedResponse,
@@ -380,7 +392,7 @@ const getIO = (io) => {
             groupId,
             userId,
           );
-  
+
           // Emit the created chat data back to the client
           socket.emit('chatCreated', {
             data: chat,
@@ -392,7 +404,7 @@ const getIO = (io) => {
           } else {
             page = parseInt(page, 10);
           }
-  
+
           if (!take) {
             take = 5;
           } else {
@@ -403,7 +415,7 @@ const getIO = (io) => {
             page,
             take,
           );
-  
+
           socket.emit('chatRetrieved', {
             data: group,
             message: `All chat from Group with group id ${data.groupId} has been retrieved`,
@@ -422,12 +434,12 @@ const getIO = (io) => {
           socket.emit('bookmarkingError', { message: 'Token is missing' });
           throw new Error('Token is missing');
         }
-  
+
         const { chatId, token } = data;
         const userId = await requireAuthenticatedWebSocket(token);
         if (userId) {
           const isBookmarked = await checkIfUserAlreadyBookmarkedAChat(chatId);
-  
+
           if (isBookmarked === null) {
             const bookmarkedChat = await bookmarkChat(chatId);
             socket.emit('bookmarkedChat', {
@@ -450,7 +462,7 @@ const getIO = (io) => {
         socket.emit('bookmarkingError', { message: err.message });
       }
     });
-  
+
     socket.on('deleteChat', async (data) => {
       try {
         if (!data.token) {
@@ -473,7 +485,7 @@ const getIO = (io) => {
         socket.emit('deletingError', { message: err.message });
       }
     });
-  
+
     socket.on('deleteGroupChat', async (data) => {
       try {
         if (!data.token) {
@@ -496,9 +508,9 @@ const getIO = (io) => {
       }
     });
   });
-}
+};
 
-module.exports = {router, getIO};
+module.exports = { router, getIO };
 // const router = express.Router();
 // //get GroupChatbyId
 // router.get('/group/:groupId', isAuthenticated, async (req, res, next) => {

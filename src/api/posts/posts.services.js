@@ -526,7 +526,7 @@ async function createPost(
       location,
       latitude: Number(latitude),
       longitude: Number(longitude),
-      postPhotoPath: `https://storage.googleapis.com/${bucketName}/${destinationPath}`,
+      postPhotoPath: destinationPath,
       postPhotoName: photoOriginalName,
     },
   });
