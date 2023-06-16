@@ -189,7 +189,12 @@ router.post(
   async (req, res, next) => {
     try {
       // eslint-disable-next-line object-curly-newline
-      const { title, description, latitude, longitude } = req.body;
+      const {
+        title,
+        description,
+        latitude = null,
+        longitude = null,
+      } = req.body;
       if (!title) {
         res.status(400);
         throw new Error('You must provide a title to create a post');
@@ -198,10 +203,6 @@ router.post(
       if (!description) {
         res.status(400);
         throw new Error('You must provide description for the post');
-      }
-      if (!latitude && !longitude) {
-        res.status(400);
-        throw new Error('You must provide an latitude and longitude');
       }
       const timestamp = new Date().getTime();
       console.log('sampe sini');

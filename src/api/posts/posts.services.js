@@ -515,7 +515,11 @@ async function createPost(
   destinationPath,
   photoOriginalName,
 ) {
-  const location = await getLocationName(Number(latitude), Number(longitude));
+  // eslint-disable-next-line operator-linebreak
+  const location =
+    latitude && longitude
+      ? await getLocationName(Number(latitude), Number(longitude))
+      : null;
   return db.post.create({
     data: {
       user: {
@@ -524,8 +528,8 @@ async function createPost(
       title,
       description: desc,
       location,
-      latitude: Number(latitude),
-      longitude: Number(longitude),
+      latitude: latitude ? Number(latitude) : null,
+      longitude: longitude ? Number(longitude) : null,
       postPhotoPath: destinationPath,
       postPhotoName: photoOriginalName,
     },
